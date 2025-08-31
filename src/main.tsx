@@ -9,7 +9,7 @@ Devvit.configure({
 
 // Add a custom post type to Devvit
 Devvit.addCustomPostType({
-  name: "Web View Example",
+  name: "Tile Slide Community",
   height: "tall",
   render: (context) => {
     // Load username with `useAsync` hook
@@ -21,41 +21,12 @@ Devvit.addCustomPostType({
       return (await context.postId) ?? "anon";
     });
 
-    const [leaderboardScores, setLeaderboardScores] = useState(async () => {
-      const leaderboard = await context.redis.get("campaignLeaderboard");
-      const scoresData = leaderboard ? await JSON.parse(leaderboard) : [];
-
-      if (scoresData.length === 0) {
-        return [];
-      }
-      return scoresData;
-    });
-
-    const [customLevelLeaderboardScores, setcustomLeveleleaderboardScores] = useState(async () => {
+    // Only custom level leaderboard now
+    const [customLevelLeaderboardScores, setCustomLevelLeaderboardScores] = useState(async () => {
       const leaderboard = await context.redis.get(`${postID}_customLevelLeaderboard`);
       const scoresData = leaderboard ? await JSON.parse(leaderboard) : [];
-
-      if (scoresData.length === 0) {
-        return [];
-      }
       return scoresData;
     });
-
-    // const addDummyScore = async () => {
-    //   // await context.redis.del("campaignLeaderboard");
-    //   setLeaderboardScores([]);
-    //   const updatedScores = [
-    //     // ...leaderboardScores,
-    //     { playerName: "Yash The Creator", playerScore: 999, levelReached: 12 },
-    //     { playerName: "Steve Huffman", playerScore: 1209, levelReached: 12 },
-    //     { playerName: "Snoo", playerScore: 811, levelReached: 12 },
-    //   ];
-    //   setLeaderboardScores(updatedScores);
-
-    //   const updatedScoresString = JSON.stringify(updatedScores);
-    //   await context.redis.set("campaignLeaderboard", updatedScoresString);
-    //   console.log("score added");
-    // };
 
     const webView = useWebView<WebViewMessage, DevvitMessage>({
       // URL of your web view content
@@ -65,7 +36,6 @@ Devvit.addCustomPostType({
       async onMessage(message, webView) {
         switch (message.type) {
           case "initialData":
-            const initialScoresData = await context.redis.get("campaignLeaderboard");
             const initialFetchedCustomLevel = await context.redis.get(postID);
             const initialCustomLevelLeaderboard = await context.redis.get(`${postID}_customLevelLeaderboard`);
 
@@ -73,8 +43,8 @@ Devvit.addCustomPostType({
               type: "setInitialData",
               data: {
                 username: username,
-                leaderboard: initialScoresData || "[]",
-                customLevelData: initialFetchedCustomLevel || "[]",
+                leaderboard: "[]", // Empty campaign leaderboard
+                customLevelData: initialFetchedCustomLevel || "{}",
                 customLevelLeaderboard: initialCustomLevelLeaderboard || "[]",
               },
             });
@@ -89,7 +59,7 @@ Devvit.addCustomPostType({
                 levelReached: message.data.levelReached,
               },
             ];
-            setcustomLeveleleaderboardScores(updatedCustomScores);
+            setCustomLevelLeaderboardScores(updatedCustomScores);
 
             const updatedCustomScoresString = JSON.stringify(updatedCustomScores);
             await context.redis.set(`${postID}_customLevelLeaderboard`, updatedCustomScoresString);
@@ -103,23 +73,24 @@ Devvit.addCustomPostType({
             break;
 
           case "addScore":
+            // This is now only for custom level scores
             const updatedScores = [
-              ...leaderboardScores,
+              ...customLevelLeaderboardScores,
               {
                 playerName: message.data.playerName,
                 playerScore: message.data.playerScore,
                 levelReached: message.data.levelReached,
               },
             ];
-            setLeaderboardScores(updatedScores);
+            setCustomLevelLeaderboardScores(updatedScores);
 
             const updatedScoresString = JSON.stringify(updatedScores);
-            await context.redis.set("campaignLeaderboard", updatedScoresString);
+            await context.redis.set(`${postID}_customLevelLeaderboard`, updatedScoresString);
 
             webView.postMessage({
-              type: "updateLeaderboard",
+              type: "updateCustomLevelLeaderboard",
               data: {
-                leaderboard: updatedScoresString,
+                customLevelLeaderboard: updatedScoresString,
               },
             });
             break;
@@ -128,6 +99,12 @@ Devvit.addCustomPostType({
             const levelDataString = JSON.stringify(message.data.levelData);
             await context.redis.set(postID, levelDataString);
 
+            webView.postMessage({
+              type: "updateCustomLevel",
+              data: {
+                customLevelData: levelDataString,
+              },
+            });
             break;
 
           case "fetchUsername":
@@ -140,17 +117,13 @@ Devvit.addCustomPostType({
             break;
 
           case "fetchScores":
-            const scoresData = await context.redis.get("campaignLeaderboard");
-
-            if (scoresData) {
-              webView.postMessage({
-                type: "updateLeaderboard",
-                data: {
-                  leaderboard: scoresData,
-                },
-              });
-            }
-
+            // Return empty for campaign scores
+            webView.postMessage({
+              type: "updateLeaderboard",
+              data: {
+                leaderboard: "[]",
+              },
+            });
             break;
 
           case "getCustomLevel":
@@ -164,7 +137,6 @@ Devvit.addCustomPostType({
                 },
               });
             }
-
             break;
 
           default:
@@ -172,7 +144,7 @@ Devvit.addCustomPostType({
         }
       },
       onUnmount() {
-        context.ui.showToast("Web view closed! Play Again Soon !");
+        context.ui.showToast("Thanks for playing! Create or play more levels!");
       },
     });
 
@@ -181,20 +153,21 @@ Devvit.addCustomPostType({
       <vstack grow gap="medium" alignment="middle center" backgroundColor="#f0f0f0">
         <image url="tile-slide-banner.png" width="100%" imageWidth={250} imageHeight={250} description="banner" />
         <text size="xxlarge" weight="bold">
-          WELCOME {username ?? ""} !!!
+          Welcome {username ?? ""}!
         </text>
         <vstack alignment="start middle">
           <text size="large" weight="bold">
-            Ready to play Tile Slide :D ?
+            🎮 Community Puzzle Builder
+          </text>
+          <text size="medium">
+            Create and share puzzles with Reddit!
           </text>
         </vstack>
         <spacer />
         <button appearance="primary" size="large" width="50%" onPress={() => webView.mount()}>
-          LAUNCH GAME !
+          LAUNCH GAME!
         </button>
-
         <spacer />
-        {/* <button onPress={() => addDummyScore()}>add sample score</button> */}
       </vstack>
     );
   },

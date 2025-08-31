@@ -1,4 +1,4 @@
-import { campaignLevels } from "./levels.js";
+// scripts/script.js - Complete final version with all updates
 import { TileType } from "./tileTypes.js";
 import { SoundHandler, sounds } from "./soundHandler.js";
 import * as menuBackground from "./menuBackground.js";
@@ -6,441 +6,266 @@ import * as reddisClient from "../webViewScript.js";
 import {
   fetchedUsername,
   fetchedCustomLevelLeaderboard,
-  fetchedLeaderboard,
   fetchedCustomLevelData,
 } from "../webViewScript.js";
 
-let levels = campaignLevels;
-let customLevelExisits = true;
-let isPlayingCustomLevel = false;
-let buildeInfoMssg;
-
+// Game state
+let customLevelExists = false;
 let isBreakingTile = false;
 let isMuted = SoundHandler.isMuted;
 let musicInitialized = false;
-
+let gameStarted = false;
 let infoBadge;
-// Sound control functions
 
-// Function to handle first user interaction
-function handleFirstInteraction() {
-  if (!musicInitialized) {
-    musicInitialized = true;
-    if (!isMuted) {
-      SoundHandler.playBackgroundMusic();
-    }
-  }
-}
+// Level data
+let currentLevel = null;
+let board = [];
+let maxMoves = 0;
+let movesLeft = 0;
+let movesUsed = 0;
+
+// Timer variables
+let timeLeft = 30;
+let timer;
+let totalScore = 0;
+let isTimerRunning = false;
+
+// Builder variables
+let selectedTile = TileType.BLANK;
+let builderBoard = [];
+let isTestingLevel = false;
+let levelVerified = false;
+let testBoard = [];
+let testMovesLeft = 0;
+let testMovesUsed = 0;
+let testTimer = null;
+let testTimeLeft = 30;
+
+// DOM Elements (will be initialized after DOMContentLoaded)
+let boardElement;
+let levelTitle;
+let levelAuthor;
+let movesInfo;
+let resetBtn;
+
+// Initialize
+document.addEventListener("DOMContentLoaded", async () => {
+  // Initialize DOM elements
+  boardElement = document.getElementById("game-board");
+  levelTitle = document.getElementById("level-title");
+  levelAuthor = document.getElementById("level-author");
+  movesInfo = document.getElementById("moves-info");
+  resetBtn = document.getElementById("reset-btn");
+  infoBadge = document.getElementById("info_badge");
+  
+  menuBackground.createAnimatedBackground();
+
+  // Initialize sound
+  isTimerRunning = false;
+  SoundHandler.initializeSounds();
+  setupSoundHandlers();
+
+  // Wait for Reddit data
+  document.addEventListener("initialDataLoaded", () => {
+    customLevelExists = reddisClient.fetchedCustomLevelData && 
+                       Object.keys(reddisClient.fetchedCustomLevelData).length > 0;
+    
+    setTimeout(() => {
+      showInfoBadge(`Welcome ${fetchedUsername}!`);
+    }, 2000);
+
+    updateMenuForCurrentLevel();
+  });
+
+  // Setup menu buttons
+  setupMenuButtons();
+  
+  // Setup builder
+  initBuilderBoard();
+  setupBuilder();
+  
+  // Back to menu and reset buttons
+  document.getElementById("back-to-menu-btn").onclick = () => returnToMenu();
+  resetBtn.addEventListener("click", resetLevel);
+});
 
 function showInfoBadge(message) {
   infoBadge.innerHTML = message;
   infoBadge.style.opacity = 1;
-
   setTimeout(() => {
     infoBadge.style.opacity = 0;
   }, 3000);
 }
 
-// Game state management
-let gameStarted = false;
+function updateMenuForCurrentLevel() {
+  const playBtn = document.getElementById("play-custom-level-btn");
+  const buildBtn = document.getElementById("build-btn");
+  const levelInfo = document.getElementById("current-level-info");
+  const levelCreator = document.getElementById("level-creator");
+  const bestScore = document.getElementById("best-score");
 
-// Initialize menu system DOMContentLoaded
-document.addEventListener("DOMContentLoaded", async () => {
-  infoBadge = document.getElementById("info_badge");
-  buildeInfoMssg = document.getElementById("builder_info_mssg");
+  if (customLevelExists && fetchedCustomLevelData) {
+    levelInfo.style.display = "block";
+    levelCreator.textContent = fetchedCustomLevelData.builtBy || "Anonymous";
+    
+    // Find best score
+    if (fetchedCustomLevelLeaderboard && fetchedCustomLevelLeaderboard.length > 0) {
+      const topScore = Math.max(...fetchedCustomLevelLeaderboard.map(s => parseInt(s.playerScore)));
+      bestScore.textContent = topScore;
+    }
+    
+    playBtn.innerHTML = `
+      <span class="shadow"></span>
+      <span class="edge"></span>
+      <span class="front">Play Current Level</span>
+    `;
+    buildBtn.innerHTML = `
+      <span class="shadow"></span>
+      <span class="edge"></span>
+      <span class="front">Create New Level (Replace)</span>
+    `;
+  } else {
+    levelInfo.style.display = "none";
+    playBtn.style.display = "none";
+    buildBtn.innerHTML = `
+      <span class="shadow"></span>
+      <span class="edge"></span>
+      <span class="front">Create First Level</span>
+    `;
+  }
+}
 
-  menuBackground.createAnimatedBackground();
-
-  const builderBtn = document.getElementById("build-btn");
-
-  document.addEventListener("initialDataLoaded", () => {
-    // SoundHandler.toggleSound();
-
-    customLevelExisits = reddisClient.fetchedCustomLevelData.length !== 0;
-
-    setTimeout(() => {
-      showInfoBadge("Welcome " + fetchedUsername + "!");
-    }, 3000);
-
-    builderBtn.style.display = customLevelExisits ? "none" : "block";
-    if(customLevelExisits)
-       buildeInfoMssg.innerHTML = "<p>Try out thr custom level built by "+fetchedCustomLevelData.builtBy +"</p> <h4> Want to build your own level?</h4> <br/> Make a new Reddit post and use the [ BUILDER ] to create and share your own level !";
-  });
-
-  // Initialize sound state
-  isTimerRunning = false;
-  SoundHandler.initializeSounds();
-
-  // Add first interaction handler to the document
+function setupSoundHandlers() {
   const handleInteraction = () => {
-    handleFirstInteraction();
-    // Remove the event listeners after first interaction
+    if (!musicInitialized) {
+      musicInitialized = true;
+      if (!isMuted) {
+        SoundHandler.playBackgroundMusic();
+      }
+    }
     document.removeEventListener("click", handleInteraction);
     document.removeEventListener("keydown", handleInteraction);
     document.removeEventListener("touchstart", handleInteraction);
   };
 
-  // Add multiple event listeners for first interaction
   document.addEventListener("click", handleInteraction);
   document.addEventListener("keydown", handleInteraction);
   document.addEventListener("touchstart", handleInteraction);
 
-  // Sound toggle functionality
   document.querySelectorAll(".sound-toggle").forEach((button) => {
     button.onclick = (e) => {
       e.stopPropagation();
       SoundHandler.toggleSound();
-      handleFirstInteraction(); // Ensure music can play after toggle
+      if (!isMuted) {
+        handleInteraction();
+      }
     };
   });
 
-  // Add click sound to all pushable buttons except sound toggles
   document.querySelectorAll(".pushable:not(.sound-toggle)").forEach((button) => {
     button.addEventListener("click", () => {
       SoundHandler.playButtonSound();
-      handleFirstInteraction(); // Ensure music can play after any button click
+      handleInteraction();
     });
   });
+}
 
-  const mainMenu = document.getElementById("main-menu");
-  const gameBoard = document.getElementById("game-board");
-  const hud = document.getElementById("hud");
-
-  // Play button
-  document.getElementById("play-btn").onclick = () => {
-    baseTime = 20;
-    levels = campaignLevels;
-    isPlayingCustomLevel = false;
-    mainMenu.style.display = "none";
-    gameBoard.style.display = "block";
-    hud.style.display = "block";
-    startGame();
-  };
-
-  // How to Play button
+function setupMenuButtons() {
+  // How to Play
   const howToPlayBtn = document.getElementById("how-to-play-btn");
   const howToPlayModal = document.getElementById("how-to-play-modal");
-
-  howToPlayBtn.onclick = () => {
-    howToPlayModal.classList.add("show");
+  howToPlayBtn.onclick = () => howToPlayModal.classList.add("show");
+  
+  document.getElementById("close-instructions-btn").onclick = () => {
+    howToPlayModal.classList.remove("show");
   };
 
-  // Leaderboard button
+  // Leaderboard
   const leaderboardBtn = document.getElementById("leaderboard-btn");
   const leaderboardModal = document.getElementById("leaderboard-modal");
   leaderboardBtn.onclick = () => {
     updateLeaderboard();
     leaderboardModal.classList.add("show");
   };
-
-  // Close buttons
-  const closeInstructionsBtn = document.getElementById("close-instructions-btn");
-  closeInstructionsBtn.onclick = () => {
-    howToPlayModal.classList.remove("show");
-  };
-
-  const closeLeaderboardBtn = document.getElementById("close-leaderboard-btn");
-  closeLeaderboardBtn.onclick = () => {
+  
+  document.getElementById("close-leaderboard-btn").onclick = () => {
     leaderboardModal.classList.remove("show");
   };
 
-  // Back to menu functionality
-  document.getElementById("back-to-menu-btn").onclick = () => returnToMenu();
+  // Play Custom Level
+  document.getElementById("play-custom-level-btn").onclick = () => {
+    if (!customLevelExists || !fetchedCustomLevelData) {
+      showInfoBadge("No level available! Create one first!");
+      return;
+    }
+    startCustomLevel();
+  };
 
-  // Add click sound to all buttons
-  document.querySelectorAll(".pushable").forEach((button) => {
-    button.addEventListener("click", SoundHandler.playButtonSound);
-  });
-});
+  // Builder
+  document.getElementById("build-btn").onclick = () => {
+    openBuilder();
+  };
+}
 
-function startGame() {
+function startCustomLevel() {
+  if (!fetchedCustomLevelData || !fetchedCustomLevelData.levelData) {
+    showInfoBadge("No custom level available!");
+    return;
+  }
+
   menuBackground.removeMenuBackground();
   const gameLayoutContainer = document.querySelector(".game-layout");
   const menuContainer = document.querySelector(".menu-container");
   const gameboardWrapper = document.querySelector(".gameboard-wrapper");
   const hud = document.getElementById("hud");
-  // const time_move_left = document.getElementById("time_move_left");
-
-  // Add slide-up class to menu
-  menuContainer.classList.add("slide-up");
-
+  
+  menuContainer.style.display = "none";
   gameLayoutContainer.style.display = "block";
-  // After menu starts sliding up, show game elements
+  
+  // Add animations
   setTimeout(() => {
-    menuContainer.style.display = "none";
     gameboardWrapper.style.display = "block";
     hud.style.display = "flex";
-
-    // Trigger animations
     requestAnimationFrame(() => {
       gameboardWrapper.classList.add("slide-in");
       hud.classList.add("slide-in");
     });
-
-    // Initialize game
-    gameStarted = true;
-    currentLevelIndex = 0;
-    totalScore = 0;
-    loadLevel(currentLevelIndex);
-  }, 500); // Match this with the menu transition duration
+  }, 100);
+  
+  currentLevel = fetchedCustomLevelData;
+  loadLevel(currentLevel);
+  gameStarted = true;
+  
+  // Update HUD
+  document.getElementById("level-title").textContent = currentLevel.levelData.level_title || "Community Level";
+  document.getElementById("level-author").textContent = currentLevel.builtBy || "Anonymous";
+  
+  showInfoBadge(`Level by ${currentLevel.builtBy}!`);
 }
 
-function returnToMenu() {
-  menuBackground.createAnimatedBackground();
-  isTimerRunning = false;
-  gameStarted = false;
-
-  const gameLayoutContainer = document.querySelector(".game-layout");
-  const menuContainer = document.querySelector(".menu-container");
-  const gameboardWrapper = document.querySelector(".gameboard-wrapper");
-  const hud = document.getElementById("hud");
-  const builderBtn = document.getElementById("build-btn");
-
-  builderBtn.style.display = customLevelExisits ? "none" : "block";
-  // First, trigger slide-out animations
-  gameboardWrapper.classList.remove("slide-in");
-  gameboardWrapper.classList.add("slide-out");
-  hud.classList.remove("slide-in");
-  hud.classList.add("slide-out");
-
-  // Wait for animations to complete before showing menu
-  setTimeout(() => {
-    // Hide game elements
-    gameLayoutContainer.style.display = "none";
-    gameboardWrapper.style.display = "none";
-    hud.style.display = "none";
-
-    // Show and animate menu
-    menuContainer.style.display = "flex";
-    menuContainer.classList.remove("slide-up");
-    menuContainer.classList.add("menu-slide-in");
-
-    // Reset game state
-    gameStarted = false;
-    stopTimer();
-    currentLevelIndex = 0;
-    totalScore = 0;
-
-    // Remove animation classes after transition
-    setTimeout(() => {
-      gameboardWrapper.classList.remove("slide-out");
-      hud.classList.remove("slide-out");
-      menuContainer.classList.remove("menu-slide-in");
-    }, 500);
-  }, 500); // Match this with animation duration
-}
-
-// Update leaderboard display
-async function updateLeaderboard() {
-  const leaderboardList = document.getElementById("leaderboard-list");
-  const customLeaderboardList = document.getElementById("custom-leaderboard-list");
-
-  buildLeaderboard(leaderboardList, fetchedLeaderboard);
-  buildLeaderboard(customLeaderboardList, fetchedCustomLevelLeaderboard);
-}
-
-// Build the leaderboard HTML
-function buildLeaderboard(leaderboardElement, leaderboardData) {
-  leaderboardData.sort((a, b) => Number(b.playerScore) - Number(a.playerScore));
-
-  if (leaderboardData.length === 0) {
-    leaderboardElement.innerHTML = '<p style="text-align: center">No scores yet!</p>';
-    return;
-  }
-
-  leaderboardElement.innerHTML = leaderboardData
-    .map(
-      (score, index) => `
-    <div class="score-entry ${index < 3 ? "top-" + (index + 1) : ""}">
-        <span class="rank">#${index + 1}</span>
-        <span class="player">${score.playerName}</span>
-        <span class="score">${score.playerScore}</span>
-        <span class="level">Level ${score.levelReached}</span>
-    </div>
-`
-    )
-    .join("");
-}
-
-// Leaderboard tab functionality
-document.querySelectorAll(".tab").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    // Toggle active tab button
-    document.querySelector(".tab.active").classList.remove("active");
-    tab.classList.add("active");
-
-    // Toggle visible leaderboard
-    document.querySelector(".leaderboard.active").classList.remove("active");
-    document.getElementById(tab.dataset.target).classList.add("active");
-  });
-});
-
-// Timer Variables
-let timeLeft = 10; // Starting time for first level
-let baseTime = 20; // Base time that increases each level
-let timeIncrement = 5; // Time increase per level
-let timer; // Timer interval
-let totalScore = 0;
-let isTimerRunning = false;
-
-function startTimer() {
-  if (!gameStarted || isTimerRunning) return;
-
-  isTimerRunning = true;
-  timeLeft = baseTime + currentLevelIndex * timeIncrement;
-  updateTimerDisplay();
-
-  timer = setInterval(() => {
-    if (!gameStarted) {
-      stopTimer();
-      return;
-    }
-
-    timeLeft--;
-    updateTimerDisplay();
-
-    if (timeLeft <= 0) {
-      stopTimer();
-      showFinalModal("Time's Up! ⏰", totalScore, true);
-    }
-  }, 1000);
-}
-function stopTimer() {
-  clearInterval(timer);
-  isTimerRunning = false;
-}
-
-function updateTimerDisplay() {
-  const timerElement = document.getElementById("timer");
-  timerElement.textContent = `Time: ${timeLeft} Secs`;
-
-  // Add warning class when time is low
-  if (timeLeft <= 10) {
-    timerElement.classList.add("warning");
-  } else {
-    timerElement.classList.remove("warning");
-  }
-}
-
-function updateScoreDisplay() {
-  const scoreElement = document.getElementById("score");
-  scoreElement.textContent = `Score: ${totalScore}`;
-}
-
-function handleGameComplete() {
-  SoundHandler.stopBackgroundMusic();
-  SoundHandler.playLevelCompleteSound();
-
-  // Calculate final score before stopping timer
-  const finalScore = calculateScore();
-  totalScore += finalScore; // Add final level score to total
+function loadLevel(levelData) {
   stopTimer();
-
-  if (!isMuted) {
-    SoundHandler.playBackgroundMusic();
-  }
-  showFinalModal("Congratulations! 🏆 You've Completed All Levels! ", totalScore, false);
+  
+  const level = levelData.levelData || levelData;
+  board = level.board.map(row => row.slice());
+  maxMoves = level.maxMoves || 10;
+  movesLeft = maxMoves;
+  movesUsed = 0;
+  timeLeft = levelData.timer || 30;
+  totalScore = 0;
+  
+  renderBoard();
+  startTimer();
+  updateDisplay();
 }
 
-function calculateScore() {
-  return timeLeft; // Score is the remaining time
-}
-
-//  * 3. Game State: Board, Current Level, Moves Left
-let currentLevelIndex = 0;
-let board = []; // 6x6 array of tile types
-let maxMoves = 0; // moves allowed for the current level
-let movesLeft = 0; // how many moves remain
-
-//  * 4. DOM Elements
-const boardElement = document.getElementById("game-board");
-const levelTitle = document.getElementById("level-title");
-const levelInfo = document.getElementById("level-info");
-const movesInfo = document.getElementById("moves-info");
-const resetBtn = document.getElementById("reset-btn");
-
-//  * 5. Event Listeners
-
-resetBtn.addEventListener("click", () => {
-  const tiles = document.querySelectorAll(".tile");
-
-  // Animate all tiles simultaneously
-  tiles.forEach((tile) => {
-    tile.animate(
-      [
-        { transform: tile.style.transform }, // Start from current position
-        { transform: `${tile.style.transform.split("translate")[0]} scale(0)` }, // Scale to 0 while maintaining position
-      ],
-      {
-        duration: 300,
-        easing: "ease-out",
-        fill: "forwards", // Keeps the final state
-      }
-    );
-  });
-
-  // Wait for animation to complete before resetting
-  setTimeout(() => {
-    loadLevel(currentLevelIndex);
-
-    // Animate new tiles appearing
-    const newTiles = document.querySelectorAll(".tile");
-    newTiles.forEach((tile) => {
-      const [x, y] = [tile.dataset.col * 80, tile.dataset.row * 80];
-
-      tile.animate(
-        [{ transform: `translate(${x}px, ${y}px) scale(0)` }, { transform: `translate(${x}px, ${y}px) scale(1)` }],
-        {
-          duration: 300,
-          easing: "ease-out",
-          fill: "forwards",
-        }
-      );
-    });
-  }, 300);
-});
-
-//  * 6. Helper Functions
-
-function isWithinBounds(r, c) {
-  return r >= 0 && r < 6 && c >= 0 && c < 6;
-}
-
-function isArrowTile(tile) {
-  return (
-    tile === TileType.ARROW_UP ||
-    tile === TileType.ARROW_DOWN ||
-    tile === TileType.ARROW_LEFT ||
-    tile === TileType.ARROW_RIGHT
-  );
-}
-
-function isPushable(tile) {
-  // Arrows, blocks and cracked tiles are "pushable"
-  return isArrowTile(tile) || tile === TileType.BLOCK || tile === TileType.CRACKED;
-}
-
-function getDirection(arrowType) {
-  switch (arrowType) {
-    case TileType.ARROW_UP:
-      return [-1, 0];
-    case TileType.ARROW_DOWN:
-      return [1, 0];
-    case TileType.ARROW_LEFT:
-      return [0, -1];
-    case TileType.ARROW_RIGHT:
-      return [0, 1];
-    default:
-      return [0, 0];
+function resetLevel() {
+  if (currentLevel) {
+    loadLevel(currentLevel);
+    showInfoBadge("Level reset!");
   }
 }
 
-/*************************************************************
- * 7. Rendering with Absolute Positioning & Animation
- *************************************************************
- * We'll create a <div> for each cell that is not 'blank'.
- * The top/left is computed from (row, col).
- *************************************************************/
 function renderBoard() {
   boardElement.innerHTML = "";
 
@@ -451,39 +276,26 @@ function renderBoard() {
 
       const tileDiv = document.createElement("div");
       tileDiv.classList.add("tile", tile);
-
-      // Add data attributes to track position
       tileDiv.dataset.row = row;
       tileDiv.dataset.col = col;
-
-      // Set initial position
       tileDiv.style.transform = `translate(${col * 80}px, ${row * 80}px)`;
 
-      // Add click listeners for arrow tiles
       if (isArrowTile(tile)) {
         tileDiv.addEventListener("click", () => onArrowClick(row, col));
       }
 
-      // Special handling for cracked tiles
-      // In your renderBoard function where you handle cracked tiles
       if (tile === TileType.CRACKED) {
-        tileDiv.classList.add("tile", "cracked");
-
         tileDiv.addEventListener("click", () => {
-          if (isBreakingTile) return; // Prevent multiple breaks at once
-
-          isBreakingTile = true; // Set the flag
+          if (isBreakingTile) return;
+          isBreakingTile = true;
           sounds.crackingTile.play();
-
           breakCrackedTile(tileDiv);
-
           movesLeft--;
-          movesInfo.textContent = `Moves Left: ${movesLeft}`;
-
-          // Update board state after animation
+          movesUsed++;
+          updateDisplay();
           setTimeout(() => {
             board[row][col] = TileType.BLANK;
-            isBreakingTile = false; // Reset the flag
+            isBreakingTile = false;
             checkWinOrLose();
           }, 600);
         });
@@ -492,89 +304,14 @@ function renderBoard() {
       boardElement.appendChild(tileDiv);
     }
   }
-
-  if (levels[currentLevelIndex].level_title !== levelTitle.textContent.trim()) {
-    updateLevelTitle(` ${levels[currentLevelIndex].level_title}`, currentLevelIndex + 1);
-  }
-  movesInfo.textContent = `Moves Left: ${movesLeft}`;
 }
 
-function updateLevelTitle(newTitle, levelIndex) {
-  levelTitle.style.opacity = "0";
-  levelTitle.style.transform = "translateY(-100px)";
-  levelInfo.style.opacity = "0";
-  setTimeout(() => {
-    levelInfo.textContent = `Level: ${levelIndex}`;
-    levelInfo.style.opacity = "1";
-
-    levelTitle.textContent = newTitle;
-    levelTitle.style.opacity = "1";
-    levelTitle.style.transform = "translateY(0)";
-  }, 300);
+function updateDisplay() {
+  movesInfo.textContent = `Moves: ${movesUsed}/${maxMoves}`;
+  document.getElementById("score").textContent = `Score: ${totalScore}`;
 }
 
-function breakCrackedTile(tileElement) {
-  // Add breaking class to start main animation
-  tileElement.classList.add("breaking");
-
-  // Create particles
-  const particles = [];
-  const particleCount = 8;
-
-  for (let i = 0; i < particleCount; i++) {
-    const particle = document.createElement("div");
-    particle.className = "particle";
-
-    particle.style.left = `${Math.random() * 100}%`;
-    particle.style.top = `${Math.random() * 100}%`;
-
-    const size = 5 + Math.random() * 10;
-    particle.style.width = `${size}px`;
-    particle.style.height = `${size}px`;
-
-    // Use the same background as cracked tile
-    particle.style.backgroundImage = 'url("./resources/images/cracked.png")';
-    particle.style.backgroundSize = "cover";
-
-    tileElement.appendChild(particle);
-    particles.push(particle);
-  }
-
-  // Animate particles
-  particles.forEach((particle) => {
-    particle.animate(
-      [
-        {
-          transform: "translate(0, 0) rotate(0)",
-          opacity: 1,
-        },
-        {
-          transform: `translate(${-50 + Math.random() * 100}px, 
-                                     ${-50 + Math.random() * 100}px) 
-                             rotate(${-180 + Math.random() * 360}deg)`,
-          opacity: 0,
-        },
-      ],
-      {
-        duration: 300 + Math.random() * 300,
-        easing: "cubic-bezier(0.4, 0, 0.2, 1)",
-        fill: "forwards",
-      }
-    );
-  });
-
-  // Remove the tile after animation
-  setTimeout(() => {
-    tileElement.remove();
-  }, 300);
-}
-
-/*************************************************************
- * 8. Arrow Click Handler
- *    Decrement moves if the push is valid.
- *************************************************************/
 function onArrowClick(row, col) {
-  // If a tile is being broken, don't allow pushing
   if (isBreakingTile) return;
 
   const arrowType = board[row][col];
@@ -585,21 +322,14 @@ function onArrowClick(row, col) {
 
   if (didMove) {
     movesLeft--;
-    // Update moves display immediately
-    movesInfo.textContent = `Moves Left: ${movesLeft}`;
+    movesUsed++;
+    updateDisplay();
   }
 
-  // renderBoard() //is now called after animation in pushTiles
   checkWinOrLose();
 }
 
-/*************************************************************
- * 9. pushTiles
- *    Returns true if at least one tile was moved/removed.
- *************************************************************/
-
 function pushTiles(startRow, startCol, dRow, dCol) {
-  // Gather contiguous pushable tiles from (startRow, startCol) forward
   const chain = [];
   let r = startRow;
   let c = startCol;
@@ -613,7 +343,6 @@ function pushTiles(startRow, startCol, dRow, dCol) {
   if (chain.length === 0) return false;
   let somethingMoved = false;
 
-  // Push from farthest to nearest
   for (let i = chain.length - 1; i >= 0; i--) {
     const { row, col } = chain[i];
     const tileType = board[row][col];
@@ -625,71 +354,13 @@ function pushTiles(startRow, startCol, dRow, dCol) {
 
       if (board[newRow][newCol] === TileType.HOLE) {
         if (tileElement) {
-          // First animate to hole position
-          const slideAnimation = tileElement.animate(
-            [
-              { transform: `translate(${col * 80}px, ${row * 80}px)` },
-              { transform: `translate(${newCol * 80}px, ${newRow * 80}px)` },
-            ],
-            {
-              duration: 300,
-              easing: "ease-out",
-              fill: "forwards",
-            }
-          );
-
-          sounds.tileVanish.play();
-          // After reaching the hole, animate light up and disappear
-          slideAnimation.onfinish = () => {
-            tileElement.animate(
-              [
-                {
-                  transform: `translate(${newCol * 80}px, ${newRow * 80}px) scale(1)`,
-                  filter: "brightness(1)",
-                  opacity: 1,
-                },
-                {
-                  transform: `translate(${newCol * 80}px, ${newRow * 80}px) scale(1.2)`,
-                  filter: "brightness(2)",
-                  opacity: 0.8,
-                },
-                {
-                  transform: `translate(${newCol * 80}px, ${newRow * 80}px) scale(0.8)`,
-                  filter: "brightness(3)",
-                  opacity: 0,
-                },
-              ],
-              {
-                duration: 400,
-                easing: "ease-in",
-                fill: "forwards",
-              }
-            ).onfinish = () => {
-              tileElement.remove();
-            };
-          };
+          animateTileToHole(tileElement, col, row, newCol, newRow);
         }
         board[row][col] = TileType.BLANK;
         somethingMoved = true;
       } else if (board[newRow][newCol] === TileType.BLANK) {
-        // Regular slide animation for normal moves
         if (tileElement) {
-          sounds.tileSlide.play();
-          tileElement.animate(
-            [
-              { transform: `translate(${col * 80}px, ${row * 80}px)` },
-              { transform: `translate(${newCol * 80}px, ${newRow * 80}px)` },
-            ],
-            {
-              duration: 200,
-              easing: "ease-out",
-              fill: "forwards",
-            }
-          );
-
-          // Update data attributes
-          tileElement.dataset.row = newRow;
-          tileElement.dataset.col = newCol;
+          animateTileSlide(tileElement, col, row, newCol, newRow);
         }
         board[newRow][newCol] = tileType;
         board[row][col] = TileType.BLANK;
@@ -698,18 +369,12 @@ function pushTiles(startRow, startCol, dRow, dCol) {
     }
   }
 
-  // Wait for all animations to complete
-  setTimeout(() => {
-    renderBoard();
-  }, 700); // Increased to account for both slide and disappear animations
-
+  setTimeout(() => renderBoard(), 700);
   return somethingMoved;
 }
 
-//  * 10. Check Win/Lose Condition
-
 function checkWinOrLose() {
-  // Check if all pushable tiles are gone => WIN
+  // Check win condition - all pushable tiles are gone
   let anyPushableRemaining = false;
   for (let row = 0; row < 6; row++) {
     for (let col = 0; col < 6; col++) {
@@ -722,217 +387,232 @@ function checkWinOrLose() {
   }
 
   if (!anyPushableRemaining) {
-    // WIN => Next level or finish
-    stopTimer();
-
-    setTimeout(() => {
-      if (currentLevelIndex < levels.length - 1) {
-        // Calculate and add score
-        const levelScore = calculateScore();
-        totalScore += levelScore;
-        sounds.levelComplete.play();
-        // Update score display
-        updateScoreDisplay();
-        const modal = document.getElementById("level-complete-modal");
-        // Show modal
-        setTimeout(() => {
-          showLevelComplete();
-        }, 1000);
-        modal.classList.add("show");
-      } else {
-        //all levels cleared
-        handleGameComplete();
-      }
-    }, 300);
+    handleLevelComplete();
     return;
   }
 
-  // Check if movesLeft <= 0 => LOSE
   if (movesLeft <= 0) {
-    // The user might still have just used their last move. If they didn’t win, it’s a fail.
-    showFinalModal("You ran out of moves! 😢 ", totalScore, true);
+    showInfoBadge("Out of moves! Try again!");
+    setTimeout(() => resetLevel(), 1500);
   }
 }
 
-function showLevelComplete() {
-  // Show regular level complete modal
+function handleLevelComplete() {
+  stopTimer();
+  totalScore = calculateScore();
+  sounds.levelComplete.play();
+  
   const modal = document.getElementById("level-complete-modal");
-  const playNameInput = document.getElementById("playerNameInput");
-  playNameInput.value = fetchedUsername;
   document.getElementById("total-score").textContent = totalScore;
+  document.getElementById("playerNameInput").value = fetchedUsername;
+  
   modal.classList.add("show");
-}
-// Add score saving functionality
-async function saveScore(playerName, playerScore, levelReached) {
-  await reddisClient.addScore(playerName, playerScore, levelReached, isPlayingCustomLevel);
+  
+  document.getElementById("submit-score-btn").onclick = async () => {
+    const playerName = document.getElementById("playerNameInput").value.trim();
+    if (playerName) {
+      await reddisClient.addScore(playerName, totalScore, 1, true);
+      modal.classList.remove("show");
+      returnToMenu();
+      showInfoBadge("Score submitted!");
+    } else {
+      document.getElementById("playerNameInput").style.border = "2px solid red";
+      document.getElementById("playerNameInput").placeholder = "Please enter your name!";
+    }
+  };
 }
 
-// Update showFinalModal function
-function showFinalModal(title, score, isGameOver) {
+function calculateScore() {
+  const moveBonus = (maxMoves - movesUsed) * 10;
+  const timeBonus = timeLeft * 2;
+  return Math.max(0, 100 + moveBonus + timeBonus);
+}
+
+function startTimer() {
+  if (!gameStarted || isTimerRunning) return;
+  isTimerRunning = true;
+  updateTimerDisplay();
+
+  timer = setInterval(() => {
+    if (!gameStarted) {
+      stopTimer();
+      return;
+    }
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      stopTimer();
+      handleTimeUp();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timer);
+  isTimerRunning = false;
+}
+
+function updateTimerDisplay() {
+  const timerElement = document.getElementById("timer");
+  timerElement.textContent = `Time: ${timeLeft}s`;
+  if (timeLeft <= 10) {
+    timerElement.classList.add("warning");
+  } else {
+    timerElement.classList.remove("warning");
+  }
+}
+
+function handleTimeUp() {
+  gameStarted = false;
+  const modal = document.getElementById("time-up-modal");
+  modal.classList.add("show");
+  
+  document.getElementById("try-again-btn").onclick = () => {
+    modal.classList.remove("show");
+    resetLevel();
+    gameStarted = true;
+  };
+  
+  document.getElementById("time-menu-btn").onclick = () => {
+    modal.classList.remove("show");
+    returnToMenu();
+  };
+}
+
+function returnToMenu() {
+  menuBackground.createAnimatedBackground();
+  isTimerRunning = false;
   gameStarted = false;
   stopTimer();
-  const modal = document.getElementById("time-up-modal");
-  const modalTitle = modal.querySelector("h2");
-  const finalScoreSpan = document.getElementById("final-score");
-  const tryAgainBtn = document.getElementById("try-again-btn");
-  const finalMenuBtn = document.getElementById("final-menu-btn");
-
-  const playNameInput = document.getElementById("playerNameInput");
-  playNameInput.value = fetchedUsername;
-
-  modalTitle.textContent = title;
-  finalScoreSpan.textContent = score;
-
-  // Play level complete sound but don't stop background music
-  isGameOver ? SoundHandler.playGameOverSound() : sounds.gameComplete.play();
-
-  tryAgainBtn.onclick = () => {
-    modal.classList.remove("show");
-    SoundHandler.playBackgroundMusic();
-
-    // Reload the current level while keeping the total score
-    loadLevel(currentLevelIndex);
-  };
-
-  finalMenuBtn.onclick = () => {
-    const playNameInput = document.getElementById("playerNameInput");
-    const playerName = playNameInput.value.trim();
-
-    if (playerName) {
-      // Save the score with player name
-
-      saveScore(playerName, score, currentLevelIndex + 1);
-      returnToMenu();
-
-      modal.style.display = "none";
-      modal.classList.remove("show");
-      SoundHandler.playBackgroundMusic();
-    } else {
-      playNameInput.style.border = "1px solid red";
-      playNameInput.placeholder = "Please enter your name!";
-    }
-  };
-
-  // modal.style.display = "block";
-  modal.classList.add("show");
+  
+  const gameboardWrapper = document.querySelector(".gameboard-wrapper");
+  const hud = document.getElementById("hud");
+  
+  // Remove slide-in classes
+  gameboardWrapper.classList.remove("slide-in");
+  hud.classList.remove("slide-in");
+  
+  document.querySelector(".game-layout").style.display = "none";
+  document.querySelector(".menu-container").style.display = "flex";
+  document.getElementById("level-builder").style.display = "none";
+  
+  updateMenuForCurrentLevel();
 }
 
-document.getElementById("next-level-btn").addEventListener("click", () => {
-  const modal = document.getElementById("level-complete-modal");
+function updateLeaderboard() {
+  const leaderboardList = document.getElementById("custom-leaderboard-list");
+  
+  if (!fetchedCustomLevelLeaderboard || fetchedCustomLevelLeaderboard.length === 0) {
+    leaderboardList.innerHTML = '<p style="text-align: center">No scores yet! Be the first!</p>';
+    return;
+  }
 
-  // Hide modal with animation
-  modal.style.opacity = "0";
-  setTimeout(() => {
-    modal.classList.remove("show");
-    modal.style.opacity = "";
+  const sorted = [...fetchedCustomLevelLeaderboard].sort((a, b) => 
+    Number(b.playerScore) - Number(a.playerScore)
+  );
 
-    // Load next level
-    currentLevelIndex++;
-    if (currentLevelIndex < levels.length) {
-      loadLevel(currentLevelIndex);
-    } else {
-      // Handle game completion
-      showFinalModal("Congratulations!", totalScore, false);
-    }
-  }, 300);
-});
+  leaderboardList.innerHTML = sorted.map((score, index) => `
+    <div class="score-entry ${index < 3 ? "top-" + (index + 1) : ""}">
+      <span class="rank">#${index + 1}</span>
+      <span class="player">${score.playerName}</span>
+      <span class="score">${score.playerScore}</span>
+    </div>
+  `).join("");
+}
 
-//  * 11. Level Loading / Reset
-
-function loadLevel(levelIndex) {
+// BUILDER FUNCTIONS
+function openBuilder() {
   menuBackground.removeMenuBackground();
-  stopTimer(); // Stop any existing timer
-
-  const levelData = levels[levelIndex];
-  board = levelData.board.map((row) => row.slice());
-  maxMoves = levelData.maxMoves;
-  movesLeft = maxMoves;
-
-  // Calculate the correct time for this level
-  timeLeft = baseTime + levelIndex * timeIncrement;
-  gameStarted = true;
-  renderBoard();
-  startTimer();
+  document.querySelector(".menu-container").style.display = "none";
+  document.getElementById("level-builder").style.display = "block";
+  initBuilderBoard();
+  validateLevel();
 }
 
-// Credits Btn
-
-const creditsBtn = document.getElementById("credits-btn");
-const creditsModal = document.getElementById("credits-modal");
-const closeCreditsBtn = document.getElementById("close-credits-btn");
-
-// Open credits modal
-creditsBtn.addEventListener("click", () => {
-  creditsModal.classList.add("show");
-});
-
-// Close credits modal
-closeCreditsBtn.addEventListener("click", () => {
-  creditsModal.classList.remove("show");
-});
-
-// Close modal if clicking outside
-creditsModal.addEventListener("click", (e) => {
-  creditsModal.classList.remove("show");
-});
-
-//////
-
-// LEVEL BUILDER DOM Elements
-const levelBuilder = document.getElementById("level-builder");
-const gridContainer = document.getElementById("grid-container");
-const paletteButtons = document.querySelectorAll(".tile-btn");
-const customLevelTitle = document.getElementById("level_title");
-const custom_level_timer = document.getElementById("custom_level_timer");
-const movesInput = document.getElementById("moves");
-const saveButton = document.getElementById("save-level");
-const buildBtn = document.getElementById("build-btn");
-const builderToMenuBtn = document.getElementById("builder-to-menu-btn");
-const playCustomButton = document.getElementById("play-custom-level-btn");
-
-const mainMenu = document.getElementById("main-menu");
-const gameBoard = document.getElementById("game-board");
-const hud = document.getElementById("hud");
-
-let customLevelTimer = 10;
-let selectedTile = TileType.BLANK; // Default tile selection for the builder
-let builderBoard = []; // This will hold the custom level matrix
-
-builderToMenuBtn.addEventListener("click", () => {
-  levelBuilder.style.display = "none";
-  returnToMenu();
-});
-
-//display builder section
-buildBtn.addEventListener("click", () => {
-  mainMenu.style.display = "none";
-  gameBoard.style.display = "none";
-  hud.style.display = "none";
-
-  levelBuilder.style.display = "flex";
-  levelBuilder.classList.add("show");
-});
-// Assume paletteButtons is a NodeList of all your tile buttons
-paletteButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    // Remove 'selected' class from all buttons
-    paletteButtons.forEach((btn) => btn.classList.remove("selected"));
-    // Add 'selected' class to the clicked button
-    button.classList.add("selected");
-    // Set the selectedTile variable based on the button's data-tile attribute
-    selectedTile = TileType[button.dataset.tile];
-  });
-});
-
-// Initialize the custom level board (6x6) with all BLANK tiles
 function initBuilderBoard() {
   builderBoard = Array.from({ length: 6 }, () => Array(6).fill(TileType.BLANK));
+  levelVerified = false;
   renderBuilderBoard();
 }
 
-// Render the builder board UI
+function setupBuilder() {
+  const paletteButtons = document.querySelectorAll(".tile-btn");
+  const clearBoardBtn = document.getElementById("clear-board-btn");
+  const testLevelBtn = document.getElementById("test-level-btn");
+  const saveLevelBtn = document.getElementById("save-level");
+  const builderToMenuBtn = document.getElementById("builder-to-menu-btn");
+  const stopTestBtn = document.getElementById("stop-test-btn");
+
+  // Palette selection
+  paletteButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      paletteButtons.forEach((btn) => btn.classList.remove("selected"));
+      button.classList.add("selected");
+      selectedTile = TileType[button.dataset.tile];
+    });
+  });
+
+  // Clear board
+  clearBoardBtn.addEventListener("click", () => {
+    initBuilderBoard();
+    levelVerified = false;
+    validateLevel();
+    showInfoBadge("Board cleared!");
+  });
+
+  // Test level
+  testLevelBtn.addEventListener("click", () => {
+    startLevelTest();
+  });
+
+  // Stop testing
+  stopTestBtn.addEventListener("click", () => {
+    stopLevelTest();
+  });
+
+  // Save level
+  saveLevelBtn.addEventListener("click", async () => {
+    if (!levelVerified) {
+      showInfoBadge("Please test and complete your level first!");
+      return;
+    }
+
+    const levelTitle = document.getElementById("level_title").value || "Untitled Puzzle";
+    const moves = parseInt(document.getElementById("moves").value) || 10;
+    const timer = parseInt(document.getElementById("custom_level_timer").value) || 30;
+
+    const customLevelData = {
+      levelData: {
+        level_title: levelTitle,
+        board: builderBoard,
+        maxMoves: moves,
+      },
+      timer: timer,
+      builtBy: fetchedUsername,
+    };
+
+    await reddisClient.addCustomLevel(customLevelData);
+    customLevelExists = true;
+    
+    // Disable builder after publishing
+    document.getElementById("level-builder").style.display = "none";
+    
+    showInfoBadge("Level published! It's now live for everyone to play!");
+    returnToMenu();
+  });
+
+  // Back to menu
+  builderToMenuBtn.addEventListener("click", () => {
+    if (isTestingLevel) {
+      stopLevelTest();
+    }
+    returnToMenu();
+  });
+}
+
 function renderBuilderBoard() {
-  gridContainer.innerHTML = ""; // Clear previous cells
+  const gridContainer = document.getElementById("grid-container");
+  gridContainer.innerHTML = "";
 
   for (let row = 0; row < 6; row++) {
     for (let col = 0; col < 6; col++) {
@@ -940,18 +620,22 @@ function renderBuilderBoard() {
       cell.classList.add("grid-cell");
       cell.dataset.row = row;
       cell.dataset.col = col;
-
-      // Reset the cell class and add the tile's class (in lowercase to match your SCSS)
       cell.className = "grid-cell";
       cell.classList.add(builderBoard[row][col].toLowerCase());
 
-      // Optionally add a tooltip for debugging (shows the tile type)
-      cell.title = builderBoard[row][col];
-
-      // When the cell is clicked, update its tile type and re-render
       cell.addEventListener("click", () => {
-        builderBoard[row][col] = selectedTile;
-        renderBuilderBoard();
+        if (!isTestingLevel) {
+          builderBoard[row][col] = selectedTile;
+          
+          // Reset verification when user makes changes
+          if (levelVerified) {
+            levelVerified = false;
+            showInfoBadge("Level changed - please test again before publishing!");
+          }
+          
+          renderBuilderBoard();
+          validateLevel();
+        }
       });
 
       gridContainer.appendChild(cell);
@@ -959,58 +643,372 @@ function renderBuilderBoard() {
   }
 }
 
-// Handle tile selection from the palette
-paletteButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    // The data-tile attribute matches keys in TileType
-    selectedTile = TileType[button.dataset.tile];
-    paletteButtons.forEach((btn) => btn.classList.remove("selected"));
-    button.classList.add("selected");
-  });
-});
+function validateLevel() {
+  const checkBlocks = document.getElementById("check-blocks");
+  const checkHoles = document.getElementById("check-holes");
+  const checkArrows = document.getElementById("check-arrows");
+  const checkSolvable = document.getElementById("check-solvable");
+  const statusMessage = document.getElementById("status-message");
+  const saveBtn = document.getElementById("save-level");
 
-// Save the custom level configuration in localStorage
-saveButton.addEventListener("click", async () => {
-  customLevelTimer = parseInt(custom_level_timer.value);
-  const customLevelDataReddit = {
-    levelData: {
-      level_title: customLevelTitle.value || "User Created Level",
-      board: builderBoard,
-      maxMoves: parseInt(movesInput.value) || 10,
-    },
-    timer: customLevelTimer,
-    builtBy: fetchedUsername,
-  };
-
-  await reddisClient.addCustomLevel(customLevelDataReddit);
-  showInfoBadge("Level saved! Click on Custom Level play it.");
+  let blocks = 0, holes = 0, arrows = 0, cracked = 0;
   
-  customLevelExisits = true;
-  buildeInfoMssg.innerHTML = "<p>Try out thr custom level built by "+fetchedCustomLevelData.builtBy +"</p> <h4> Want to build your own level?</h4> <br/> Make a new Reddit post and use the [ BUILDER ] to create and share your own level !";
-  builderToMenuBtn.click();
-});
+  for (let row = 0; row < 6; row++) {
+    for (let col = 0; col < 6; col++) {
+      const tile = builderBoard[row][col];
+      if (tile === TileType.BLOCK) blocks++;
+      if (tile === TileType.CRACKED) cracked++;
+      if (tile === TileType.HOLE) holes++;
+      if (isArrowTile(tile)) arrows++;
+    }
+  }
 
-// Load and play the custom level (integration with your game logic)
-playCustomButton.addEventListener("click", async () => {
-  if (fetchedCustomLevelData.length === 0) {
-    showInfoBadge("No custom levels saved yet! Build one using the Level Builder :D");
+  const totalPushable = blocks + cracked;
+
+  // Updated validation rules
+  if (totalPushable > 0) {
+    // If user added blocks/cracked, they must match holes
+    checkBlocks.innerHTML = totalPushable === holes ? 
+      "✅ Pushable tiles match holes" : 
+      `❌ ${totalPushable} pushable tiles, ${holes} holes - must match!`;
+  } else {
+    // No blocks required - arrows can push each other
+    checkBlocks.innerHTML = "✅ No blocks needed (arrows push arrows)";
+  }
+  
+  checkHoles.innerHTML = holes > 0 ? 
+    `✅ Has ${holes} hole${holes > 1 ? 's' : ''}` : 
+    "❌ Add at least one hole";
+    
+  checkArrows.innerHTML = arrows > 0 ? 
+    `✅ Has ${arrows} arrow tile${arrows > 1 ? 's' : ''}` : 
+    "❌ Add at least one arrow";
+    
+  checkSolvable.innerHTML = levelVerified ? 
+    "✅ Level tested and verified!" : 
+    "❌ Test and complete the level";
+
+  // Update status message
+  let canTest = false;
+  
+  if (arrows === 0) {
+    statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Add at least one arrow tile';
+    statusMessage.className = "status-message status-error";
+  } else if (holes === 0) {
+    statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Add at least one hole';
+    statusMessage.className = "status-message status-error";
+  } else if (totalPushable > 0 && totalPushable !== holes) {
+    statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Pushable tiles must equal holes';
+    statusMessage.className = "status-message status-warning";
+  } else if (!levelVerified) {
+    statusMessage.innerHTML = '<i class="fas fa-info-circle"></i> Test your level to verify it\'s solvable';
+    statusMessage.className = "status-message status-info";
+    canTest = true;
+  } else {
+    statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> Level verified! You can still make changes or publish';
+    statusMessage.className = "status-message status-success";
+    canTest = true;
+  }
+
+  // Enable/disable test button based on validation
+  const testBtn = document.getElementById("test-level-btn");
+  if (testBtn) {
+    testBtn.disabled = !canTest;
+  }
+  
+  // Only enable save button if level is verified
+  saveBtn.disabled = !levelVerified;
+}
+
+function startLevelTest() {
+  // Validate basic requirements first
+  let blocks = 0, holes = 0, arrows = 0, cracked = 0;
+  for (let row = 0; row < 6; row++) {
+    for (let col = 0; col < 6; col++) {
+      const tile = builderBoard[row][col];
+      if (tile === TileType.BLOCK) blocks++;
+      if (tile === TileType.CRACKED) cracked++;
+      if (tile === TileType.HOLE) holes++;
+      if (isArrowTile(tile)) arrows++;
+    }
+  }
+
+  const totalPushable = blocks + cracked;
+
+  // Updated validation for testing
+  if (arrows === 0 || holes === 0) {
+    showInfoBadge("Add arrows and holes before testing!");
+    return;
+  }
+  
+  if (totalPushable > 0 && totalPushable !== holes) {
+    showInfoBadge("Number of pushable tiles must equal holes!");
     return;
   }
 
-  levels = [];
-  showInfoBadge("Level Created by || " + fetchedCustomLevelData.builtBy + " ||");
-  baseTime = fetchedCustomLevelData.timer;
-  levels.push(fetchedCustomLevelData.levelData);
-  isPlayingCustomLevel = true;
+  isTestingLevel = true;
+  testBoard = builderBoard.map(row => row.slice());
+  testMovesLeft = parseInt(document.getElementById("moves").value) || 10;
+  testMovesUsed = 0;
+  testTimeLeft = parseInt(document.getElementById("custom_level_timer").value) || 30;
 
-  mainMenu.style.display = "none";
-  gameBoard.style.display = "block";
-  hud.style.display = "block";
+  // Hide builder controls, show test controls
+  document.getElementById("test-controls").style.display = "block";
+  document.querySelector(".builder-options").style.opacity = "0.5";
+  document.querySelector(".builder-options").style.pointerEvents = "none";
 
-  startGame();
-});
+  // Render test board
+  renderTestBoard();
+  startTestTimer();
+  
+  showInfoBadge("Testing mode! Complete the level to verify it.");
+}
 
-// Initialize the builder board when the page loads
-initBuilderBoard();
+function stopLevelTest() {
+  isTestingLevel = false;
+  clearInterval(testTimer);
+  
+  document.getElementById("test-controls").style.display = "none";
+  document.querySelector(".builder-options").style.opacity = "1";
+  document.querySelector(".builder-options").style.pointerEvents = "auto";
+  
+  renderBuilderBoard();
+  
+  // Don't reset levelVerified - user can still edit after verification
+  if (levelVerified) {
+    showInfoBadge("Level verified! You can make changes or publish.");
+  } else {
+    showInfoBadge("Test stopped. Keep building!");
+  }
+}
 
-/////////////////
+function renderTestBoard() {
+  const gridContainer = document.getElementById("grid-container");
+  gridContainer.innerHTML = "";
+
+  for (let row = 0; row < 6; row++) {
+    for (let col = 0; col < 6; col++) {
+      const tile = testBoard[row][col];
+      const cell = document.createElement("div");
+      cell.classList.add("grid-cell", tile.toLowerCase());
+      cell.dataset.row = row;
+      cell.dataset.col = col;
+
+      if (isArrowTile(tile)) {
+        cell.addEventListener("click", () => onTestArrowClick(row, col));
+        cell.style.cursor = "pointer";
+      }
+
+      if (tile === TileType.CRACKED) {
+        cell.addEventListener("click", () => {
+          if (!isArrowTile(testBoard[row][col])) {
+            testBoard[row][col] = TileType.BLANK;
+            testMovesUsed++;
+            testMovesLeft--;
+            updateTestDisplay();
+            renderTestBoard();
+            checkTestWin();
+          }
+        });
+        cell.style.cursor = "pointer";
+      }
+
+      gridContainer.appendChild(cell);
+    }
+  }
+}
+
+function onTestArrowClick(row, col) {
+  const arrowType = testBoard[row][col];
+  if (!isArrowTile(arrowType)) return;
+
+  const [dRow, dCol] = getDirection(arrowType);
+  const didMove = pushTestTiles(row, col, dRow, dCol);
+
+  if (didMove) {
+    testMovesUsed++;
+    testMovesLeft--;
+    updateTestDisplay();
+    setTimeout(() => {
+      renderTestBoard();
+      checkTestWin();
+    }, 300);
+  }
+}
+
+function pushTestTiles(startRow, startCol, dRow, dCol) {
+  const chain = [];
+  let r = startRow, c = startCol;
+
+  while (isWithinBounds(r, c) && isPushable(testBoard[r][c])) {
+    chain.push({ row: r, col: c });
+    r += dRow;
+    c += dCol;
+  }
+
+  if (chain.length === 0) return false;
+  let moved = false;
+
+  for (let i = chain.length - 1; i >= 0; i--) {
+    const { row, col } = chain[i];
+    const newRow = row + dRow;
+    const newCol = col + dCol;
+
+    if (isWithinBounds(newRow, newCol)) {
+      if (testBoard[newRow][newCol] === TileType.HOLE) {
+        testBoard[row][col] = TileType.BLANK;
+        moved = true;
+      } else if (testBoard[newRow][newCol] === TileType.BLANK) {
+        testBoard[newRow][newCol] = testBoard[row][col];
+        testBoard[row][col] = TileType.BLANK;
+        moved = true;
+      }
+    }
+  }
+
+  return moved;
+}
+
+function checkTestWin() {
+  // Check if all pushable tiles are gone
+  let anyPushable = false;
+  for (let row = 0; row < 6; row++) {
+    for (let col = 0; col < 6; col++) {
+      const tile = testBoard[row][col];
+      // Check for blocks, cracked, AND arrows (since arrows can push each other)
+      if (tile === TileType.BLOCK || tile === TileType.CRACKED || isArrowTile(tile)) {
+        anyPushable = true;
+        break;
+      }
+    }
+    if (anyPushable) break;
+  }
+
+  if (!anyPushable) {
+    levelVerified = true;
+    stopLevelTest();
+    validateLevel();
+    showInfoBadge("Level verified! You can still edit or publish now!");
+    sounds.levelComplete.play();
+    
+    // Add success animation to validation status
+    const validationStatus = document.getElementById("validation-status");
+    validationStatus.classList.add("verified");
+    setTimeout(() => {
+      validationStatus.classList.remove("verified");
+    }, 1000);
+  } else if (testMovesLeft <= 0) {
+    showInfoBadge("Out of moves! Adjust move limit or redesign.");
+    stopLevelTest();
+  }
+}
+
+function startTestTimer() {
+  updateTestDisplay();
+  testTimer = setInterval(() => {
+    testTimeLeft--;
+    updateTestDisplay();
+    if (testTimeLeft <= 0) {
+      showInfoBadge("Time's up! Adjust time limit or redesign.");
+      stopLevelTest();
+    }
+  }, 1000);
+}
+
+function updateTestDisplay() {
+  document.getElementById("test-moves").textContent = `Moves: ${testMovesUsed}/${testMovesUsed + testMovesLeft}`;
+  document.getElementById("test-timer").textContent = `Time: ${testTimeLeft}s`;
+}
+
+// Helper functions
+function isWithinBounds(r, c) {
+  return r >= 0 && r < 6 && c >= 0 && c < 6;
+}
+
+function isArrowTile(tile) {
+  return tile === TileType.ARROW_UP || tile === TileType.ARROW_DOWN ||
+         tile === TileType.ARROW_LEFT || tile === TileType.ARROW_RIGHT;
+}
+
+function isPushable(tile) {
+  return isArrowTile(tile) || tile === TileType.BLOCK || tile === TileType.CRACKED;
+}
+
+function getDirection(arrowType) {
+  switch (arrowType) {
+    case TileType.ARROW_UP: return [-1, 0];
+    case TileType.ARROW_DOWN: return [1, 0];
+    case TileType.ARROW_LEFT: return [0, -1];
+    case TileType.ARROW_RIGHT: return [0, 1];
+    default: return [0, 0];
+  }
+}
+
+function breakCrackedTile(tileElement) {
+  tileElement.classList.add("breaking");
+  const particles = [];
+  
+  for (let i = 0; i < 8; i++) {
+    const particle = document.createElement("div");
+    particle.className = "particle";
+    particle.style.left = `${Math.random() * 100}%`;
+    particle.style.top = `${Math.random() * 100}%`;
+    particle.style.width = `${5 + Math.random() * 10}px`;
+    particle.style.height = particle.style.width;
+    particle.style.backgroundImage = 'url("./resources/images/cracked.png")';
+    particle.style.backgroundSize = "cover";
+    tileElement.appendChild(particle);
+    particles.push(particle);
+  }
+
+  particles.forEach((particle) => {
+    particle.animate([
+      { transform: "translate(0, 0) rotate(0)", opacity: 1 },
+      { transform: `translate(${-50 + Math.random() * 100}px, ${-50 + Math.random() * 100}px) rotate(${-180 + Math.random() * 360}deg)`, opacity: 0 }
+    ], {
+      duration: 300 + Math.random() * 300,
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+      fill: "forwards"
+    });
+  });
+
+  setTimeout(() => tileElement.remove(), 300);
+}
+
+function animateTileToHole(element, oldCol, oldRow, newCol, newRow) {
+  sounds.tileVanish.play();
+  const slideAnimation = element.animate([
+    { transform: `translate(${oldCol * 80}px, ${oldRow * 80}px)` },
+    { transform: `translate(${newCol * 80}px, ${newRow * 80}px)` }
+  ], {
+    duration: 300,
+    easing: "ease-out",
+    fill: "forwards"
+  });
+
+  slideAnimation.onfinish = () => {
+    element.animate([
+      { transform: `translate(${newCol * 80}px, ${newRow * 80}px) scale(1)`, filter: "brightness(1)", opacity: 1 },
+      { transform: `translate(${newCol * 80}px, ${newRow * 80}px) scale(1.2)`, filter: "brightness(2)", opacity: 0.8 },
+      { transform: `translate(${newCol * 80}px, ${newRow * 80}px) scale(0.8)`, filter: "brightness(3)", opacity: 0 }
+    ], {
+      duration: 400,
+      easing: "ease-in",
+      fill: "forwards"
+    }).onfinish = () => element.remove();
+  };
+}
+
+function animateTileSlide(element, oldCol, oldRow, newCol, newRow) {
+  sounds.tileSlide.play();
+  element.animate([
+    { transform: `translate(${oldCol * 80}px, ${oldRow * 80}px)` },
+    { transform: `translate(${newCol * 80}px, ${newRow * 80}px)` }
+  ], {
+    duration: 200,
+    easing: "ease-out",
+    fill: "forwards"
+  });
+  element.dataset.row = newRow;
+  element.dataset.col = newCol;
+}
