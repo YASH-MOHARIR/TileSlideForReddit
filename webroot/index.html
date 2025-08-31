@@ -3,30 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <title>Tile Slide</title>
-
-    <link rel="icon" href="./resources/images/fav-icon.png" />
-
-    <link rel="stylesheet" href="./resources/fontawesome-free-6.7.2-web/css/all.min.css" />
-
-    <link rel="stylesheet" href="./bootstrap.min.css" />
-    <link rel="stylesheet" href="./resources/bootstrap-css/bootstrap.min.css" />
-
+    <link rel="icon" href="resources/images/fav-icon.png" />
+    <link rel="stylesheet" href="resources/fontawesome-free-6.7.2-web/css/all.min.css" />
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <link rel="stylesheet" href="resources/bootstrap-css/bootstrap.min.css" />
     <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="./responsive.css" />
+    <link rel="stylesheet" href="responsive.css" />
   </head>
   <body>
     <!-- Sound Toggle Button -->
-
     <div class="info-badge" id="info_badge">Some Message</div>
 
-      <button id="menu-sound-toggle" class="pushable sound-toggle">
-        <span class="shadow"></span>
-        <span class="edge"></span>
-        <span class="front">
-          <i class="fas fa-volume-up"></i>
-        </span>
-      </button>
+    <button id="menu-sound-toggle" class="pushable sound-toggle">
+      <span class="shadow"></span>
+      <span class="edge"></span>
+      <span class="front">
+        <i class="fas fa-volume-up"></i>
+      </span>
+    </button>
 
+    <!-- Main Menu -->
     <div id="main-menu" class="menu-container">
       <h1 class="game-title">
         <span>T</span>
@@ -41,30 +37,20 @@
         <span>e</span>
       </h1>
 
-      <div class="builder-info" id="builder_info_mssg">
-        Click on the [ BUILDER ] to build your own custom level and challenge others!
-      </div>
-
       <div class="menu-buttons">
-        <button id="play-btn" class="pushable green-btn">
+        <button id="play-custom-level-btn" class="pushable green-btn" style="display: none;">
           <span class="shadow"></span>
           <span class="edge"></span>
-          <span class="front">Play Campaign</span>
-        </button>
-
-        <button id="play-custom-level-btn" class="pushable green-btn">
-          <span class="shadow"></span>
-          <span class="edge"></span>
-          <span class="front">Play Custom Level</span>
+          <span class="front">Play Level</span>
         </button>
 
         <button id="build-btn" class="pushable orange-btn">
           <span class="shadow"></span>
           <span class="edge"></span>
-          <span class="front">Builder</span>
+          <span class="front">Create Level</span>
         </button>
 
-        <button id="how-to-play-btn" class="col pushable blue-btn">
+        <button id="how-to-play-btn" class="pushable blue-btn">
           <span class="shadow"></span>
           <span class="edge"></span>
           <span class="front">How to Play</span>
@@ -73,46 +59,45 @@
         <button id="leaderboard-btn" class="pushable golden-btn">
           <span class="shadow"></span>
           <span class="edge"></span>
-          <span class="front">Leaderboards</span>
+          <span class="front">Leaderboard</span>
         </button>
+      </div>
 
-        <button id="credits-btn" class="pushable red-btn">
-          <span class="shadow"></span>
-          <span class="edge"></span>
-          <span class="front">Credits</span>
-        </button>
+      <div class="current-level-info" id="current-level-info" style="display: none;">
+        <h4>Level by: <span id="level-creator"></span></h4>
+        <p>Best Score: <span id="best-score">--</span></p>
       </div>
     </div>
 
     <!-- How to Play Modal -->
     <div id="how-to-play-modal" class="modal">
       <div class="modal-content">
-        <h1>🕹️ How to Play</h1>
+        <h1>🎮 How to Play</h1>
         <div class="instructions">
-          <ul class="steps">
-            <li>
-              <p>🎯 Goal: Push tiles into holes to clear the board</p>
-            </li>
-            <li>
-              <p>⌨️ Controls: Click on arrow tiles to push tiles</p>
-            </li>
-            <li>
-              <p>⏰ Time: Complete each level before time runs out</p>
-            </li>
+          <h3>📋 Playing Levels:</h3>
+          <ul>
+            <li>🎯 Push colored tiles into holes to clear the level</li>
+            <li>⬅️➡️⬆️⬇️ Click arrow tiles to push tiles in that direction</li>
+            <li>💥 Click cracked tiles to break them (uses 1 move)</li>
+            <li>⏱️ Complete before time runs out</li>
+            <li>🏆 Fewer moves = Higher score!</li>
           </ul>
 
-          <h3>🌟 Speacial Tiles :</h3>
+          <h3>🔨 Creating Levels:</h3>
           <ul>
-            <li>Blocks: Normal tiles that can be pushed around by arrow tiles.</li>
-            <li>Broken Tile : can be pushed around like block tiles. Click on them to break them (consumes 1 move)</li>
-            <li>Wall Tile : Walls which cannot be moved or borken</li>
+            <li>Use the builder to design your puzzle</li>
+            <li>Test and verify your level is solvable</li>
+            <li>Share it with the community!</li>
+            <li>See how others solve your puzzle</li>
           </ul>
 
-          <h3>🎮 Tips:</h3>
+          <h3>📦 Tile Types:</h3>
           <ul>
-            <li>Plan your moves carefully</li>
-            <li>Watch your remaining moves</li>
-            <li>Higher levels give more points</li>
+            <li><strong>Block:</strong> Green tiles that can be pushed</li>
+            <li><strong>Cracked:</strong> Can be pushed or broken</li>
+            <li><strong>Wall:</strong> Immovable obstacles</li>
+            <li><strong>Hole:</strong> Target destinations for blocks</li>
+            <li><strong>Arrows:</strong> Push tiles in their direction</li>
           </ul>
         </div>
         <button id="close-instructions-btn" class="pushable green-btn">
@@ -123,17 +108,16 @@
       </div>
     </div>
 
-    <!-- HUD: Displays Level, Moves Left, and Reset Button -->
+    <!-- Game Layout -->
     <div class="game-layout">
       <div class="game-content">
         <div id="hud">
           <div id="game-controls">
             <div class="level-info-text">
               <h1 class="game-heading">Tile Slide</h1>
-
-              <span id="level-info">Level: 1</span>
               <div class="level-title-wrapper">
-                <span id="level-title">Title</span>
+                <span id="level-title">Loading...</span>
+                <small>by <span id="level-author">--</span></small>
               </div>
               <hr />
               <div id="score">Score: 0</div>
@@ -154,7 +138,7 @@
                 <span class="shadow"></span>
                 <span class="edge"></span>
                 <span class="front">
-                  Reset Level
+                  Reset
                   <i class="fa-solid fa-rotate-right reset-icon"></i>
                 </span>
               </button>
@@ -162,11 +146,10 @@
           </div>
         </div>
 
-        <!-- The game board container -->
         <div class="game-board-container">
           <div class="game-info" id="time_move_left">
-            <div id="timer">Time: 20 s</div>
-            <span id="moves-info">Moves Left: 0</span>
+            <div id="timer">Time: 20s</div>
+            <span id="moves-info">Moves: 0</span>
           </div>
           <div class="gameboard-wrapper">
             <div id="game-board"></div>
@@ -175,37 +158,37 @@
       </div>
     </div>
 
+    <!-- Level Complete Modal -->
     <div id="level-complete-modal" class="modal">
       <div class="modal-content">
         <h2>Level Complete! 🎉</h2>
-        <p class="stats">Total Score: <span id="total-score">0</span></p>
-        <button id="next-level-btn" class="pushable green-btn">
+        <p class="stats">Your Score: <span id="total-score">0</span></p>
+        <div class="name-input-container">
+          <input type="text" id="playerNameInput" placeholder="Enter your name" maxlength="20" required />
+        </div>
+        <button id="submit-score-btn" class="pushable green-btn">
           <span class="shadow"></span>
           <span class="edge"></span>
-          <span class="front">Next Level</span>
+          <span class="front">Submit Score</span>
         </button>
       </div>
     </div>
 
-    <!-- Try Again Modal  -->
+    <!-- Time Up Modal -->
     <div id="time-up-modal" class="modal">
       <div class="modal-content">
-        <h2>Time's Up!</h2>
-        <p>Final Score: <span id="final-score">0</span></p>
-        <div class="name-input-container">
-          <input type="text" id="playerNameInput" placeholder="Enter your name" maxlength="20" required />
-        </div>
+        <h2>Time's Up! ⏰</h2>
+        <p>You ran out of time. Try again!</p>
         <div class="modal-buttons">
           <button id="try-again-btn" class="pushable">
             <span class="shadow"></span>
             <span class="edge"></span>
-            <span class="front">Play Again</span>
+            <span class="front">Try Again</span>
           </button>
-
-          <button id="final-menu-btn" class="pushable blue-btn menu-btn ml-2">
+          <button id="time-menu-btn" class="pushable blue-btn">
             <span class="shadow"></span>
             <span class="edge"></span>
-            <span class="front">Submit Score</span>
+            <span class="front">Back to Menu</span>
           </button>
         </div>
       </div>
@@ -214,26 +197,10 @@
     <!-- Leaderboard Modal -->
     <div id="leaderboard-modal" class="modal">
       <div class="modal-content">
-        <div>
-          <h2>Top Scores 🏆</h2>
-          <div class="tabs">
-            <button class="tab active" data-target="leaderboard1">Campaign</button>
-            <button class="tab" data-target="leaderboard2">Custom Level</button>
-          </div>
+        <h2>🏆 Level Leaderboard</h2>
+        <div id="custom-leaderboard-list">
+          <p id="loading">Loading...</p>
         </div>
-
-        <div id="leaderboard1" class="leaderboard active">
-          <div id="leaderboard-list">
-            <p id="loading">Loading..</p>
-          </div>
-        </div>
-
-        <div id="leaderboard2" class="leaderboard">
-          <div id="custom-leaderboard-list">
-            <p id="loading">Loading..</p>
-          </div>
-        </div>
-
         <button id="close-leaderboard-btn" class="pushable">
           <span class="shadow"></span>
           <span class="edge"></span>
@@ -242,142 +209,118 @@
       </div>
     </div>
 
-    <div id="credits-modal" class="modal credits-modal">
-      <div class="modal-content">
-        <h1>Credits</h1>
-
-        <div class="name">
-          <p>Created By :</p>
-          <p>Yash Moharir</p>
-        </div>
-
-        <div class="name">
-          <p>UI Designed By :</p>
-          <p>Yash Moharir</p>
-        </div>
-
-        <div class="name">
-          <p>Level Designs :</p>
-          <p>Yash Moharir</p>
-        </div>
-
-        <div class="name">
-          <p class="text-start">Game Designed By:</p>
-          <p>I think you already know where this is going .. :)</p>
-        </div>
-
-        <div class="name">
-          <p>Sounds/SFX:</p>
-          <p>Pixabay</p>
-        </div>
-
-        <hr />
-
-        <div class="social-links">
-          <p>Connect with me :</p>
-          <a href="https://yashmoharir.com/" target="_blank" rel="noopener" class="social-link">
-            <button id="close-credits-btn" class="pushable golden-btn">
-              <span class="shadow"></span>
-              <span class="edge"></span>
-              <span class="front">
-                <span>
-                  <i class="fas fa-globe"></i>
-                  My Portfolio</span
-                >
-              </span>
-            </button>
-
-            <a href="https://www.linkedin.com/in/yash-moharir/" target="_blank" rel="noopener" class="social-link">
-              <button id="close-credits-btn" class="pushable blue-btn">
-                <span class="shadow"></span>
-                <span class="edge"></span>
-                <span class="front">
-                  <i class="fab fa-linkedin"></i>
-                </span>
-              </button>
-            </a>
-
-            <a href="https://github.com/YASH-MOHARIR" target="_blank" rel="noopener" class="social-link">
-              <button id="close-credits-btn" class="pushable green-btn">
-                <span class="shadow"></span>
-                <span class="edge"></span>
-                <span class="front">
-                  <i class="fab fa-github"></i>
-                </span>
-              </button>
-            </a>
-          </a>
-        </div>
-        <hr />
-        <div class="game-info">
-          <p class="copyright">© 2024 Tile Slide. All rights reserved.</p>
-          <p class="version">Version 1.0.0</p>
-        </div>
-
-        <button id="close-credits-btn" class="pushable">
+    <!-- Level Builder -->
+    <section id="level-builder" class="container">
+      <div class="builder-header">
+        <h1>🔨 Level Builder</h1>
+        <button id="builder-to-menu-btn" class="pushable blue-btn">
           <span class="shadow"></span>
           <span class="edge"></span>
-          <span class="front">Sweet !!</span>
+          <span class="front">← Back</span>
         </button>
       </div>
-    </div>
 
-    <!-- Builder -->
-
-    <section id="level-builder" class="container">
-      <div class="builder-options">
-        <h1>TS Level Builder</h1>
-
-        <!-- Level Settings -->
-        <div id="builder_settings" class="level-settings">
-          <label for="level-title">level Title:</label>
-          <input class="builder-input" type="text" id="level_title" placeholder="Enter Level Title" />
-          <label for="moves">Max Moves:</label>
-          <input class="builder-input" type="number" id="moves" value="10" min="1" />
-          <label for="custom_level_timer">Set Time (secs):</label>
-          <input class="builder-input" type="number" id="custom_level_timer" value="10" min="1" />
-        </div>
-
-        <!-- Tile Palette -->
-        <div id="palette" class="tile-selector">
-          <div class="arrows d-flex">
-            <button class="tile-btn arrow_up" data-tile="ARROW_UP"></button>
-            <button class="tile-btn arrow_down" data-tile="ARROW_DOWN"></button>
-            <button class="tile-btn arrow_left" data-tile="ARROW_LEFT"></button>
-            <button class="tile-btn arrow_right" data-tile="ARROW_RIGHT"></button>
+      <div class="builder-layout">
+        <div class="builder-options">
+          <!-- Level Settings -->
+          <div class="level-settings">
+            <h3>Level Settings</h3>
+            <label for="level_title">Level Name:</label>
+            <input class="builder-input" type="text" id="level_title" placeholder="My Awesome Puzzle" />
+            
+            <label for="moves">Move Limit:</label>
+            <input class="builder-input" type="number" id="moves" value="10" min="1" max="50" />
+            
+            <label for="custom_level_timer">Time Limit (seconds):</label>
+            <input class="builder-input" type="number" id="custom_level_timer" value="30" min="10" max="120" />
           </div>
-          <div class="actions d-flex">
-            <button class="tile-btn blank" data-tile="BLANK">Blank</button>
-            <button class="tile-btn block" data-tile="BLOCK"></button>
-            <button class="tile-btn cracked" data-tile="CRACKED"></button>
-            <button class="tile-btn" data-tile="WALL">Wall</button>
-            <button class="tile-btn hole" style="pointer-events: all; cursor: pointer" data-tile="HOLE"></button>
+
+          <!-- Tile Palette -->
+          <div class="tile-palette">
+            <h3>Tiles</h3>
+            <div class="palette-grid">
+              <button class="tile-btn blank selected" data-tile="BLANK" title="Eraser">
+                <i class="fas fa-eraser"></i>
+              </button>
+              <button class="tile-btn block" data-tile="BLOCK" title="Block"></button>
+              <button class="tile-btn hole" data-tile="HOLE" title="Hole"></button>
+              <button class="tile-btn cracked" data-tile="CRACKED" title="Cracked"></button>
+              <button class="tile-btn wall" data-tile="WALL" title="Wall">
+                <i class="fas fa-square"></i>
+              </button>
+            </div>
+            
+            <h4>Arrows</h4>
+            <div class="palette-grid">
+              <button class="tile-btn arrow_up" data-tile="ARROW_UP"></button>
+              <button class="tile-btn arrow_down" data-tile="ARROW_DOWN"></button>
+              <button class="tile-btn arrow_left" data-tile="ARROW_LEFT"></button>
+              <button class="tile-btn arrow_right" data-tile="ARROW_RIGHT"></button>
+            </div>
+          </div>
+
+          <!-- Builder Actions -->
+          <div class="builder-actions">
+            <button id="clear-board-btn" class="pushable red-btn">
+              <span class="shadow"></span>
+              <span class="edge"></span>
+              <span class="front">Clear Board</span>
+            </button>
+            
+            <button id="test-level-btn" class="pushable orange-btn">
+              <span class="shadow"></span>
+              <span class="edge"></span>
+              <span class="front">Test Level</span>
+            </button>
+            
+            <button id="save-level" class="pushable green-btn" disabled>
+              <span class="shadow"></span>
+              <span class="edge"></span>
+              <span class="front">Publish Level ✓</span>
+            </button>
+          </div>
+
+          <!-- Validation Status -->
+          <div id="validation-status" class="validation-status">
+            <h4>Level Status</h4>
+            <div id="status-message" class="status-message">
+              <i class="fas fa-info-circle"></i>
+              <span>Design your level and test it to verify it's solvable!</span>
+            </div>
+            <ul id="validation-checklist" class="validation-checklist">
+              <li id="check-blocks">❌ Add pushable tiles or use arrows only</li>
+              <li id="check-holes">❌ Add at least one hole</li>
+              <li id="check-arrows">❌ Add at least one arrow</li>
+              <li id="check-solvable">❌ Test and complete the level</li>
+            </ul>
           </div>
         </div>
 
-        <div class="mt-2 builder-action-btns">
-          <button id="builder-to-menu-btn" class="pushable blue-btn">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">Menu </span>
-          </button>
-
-          <button id="save-level" class="pushable green-btn">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">Save Custom Level </span>
-          </button>
+        <!-- Grid Container -->
+        <div class="grid-section">
+          <div id="grid-wrapper">
+            <div id="grid-container"></div>
+          </div>
+          
+          <!-- Test Mode Controls -->
+          <div id="test-controls" class="test-controls" style="display: none;">
+            <h3>Testing Mode</h3>
+            <div class="test-info">
+              <span id="test-moves">Moves: 0</span>
+              <span id="test-timer">Time: 30s</span>
+            </div>
+            <button id="stop-test-btn" class="pushable red-btn">
+              <span class="shadow"></span>
+              <span class="edge"></span>
+              <span class="front">Stop Testing</span>
+            </button>
+          </div>
         </div>
-      </div>
-
-      <!-- 6x6 Grid Container -->
-      <div id="grid-wrapper">
-        <div id="grid-container"></div>
       </div>
     </section>
 
-    <!-- Script -->
-    <script type="module" src="./webViewScript.js"></script>
-    <script type="module" src="./scripts/script.js"></script>
+    <!-- Scripts -->
+    <script type="module" src="webViewScript.js"></script>
+    <script type="module" src="scripts/script.js"></script>
   </body>
 </html>

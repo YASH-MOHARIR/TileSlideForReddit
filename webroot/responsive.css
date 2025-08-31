@@ -1,3 +1,145 @@
+@media (max-width: 576px) {
+  .menu-container {
+    padding: 10px;
+    margin-top: 5vh;
+  }
+  .menu-container .game-title {
+    font-size: 2.5rem;
+  }
+  .menu-container .community-info {
+    padding: 15px;
+    margin: 15px 0;
+  }
+  .menu-container .community-info h3 {
+    font-size: 1.2em;
+  }
+  .menu-container .community-info p {
+    font-size: 0.8em;
+  }
+  .menu-container .menu-buttons {
+    width: 100%;
+    gap: 15px;
+  }
+  .menu-container .menu-buttons .pushable .front {
+    padding: 10px 20px;
+    font-size: 1rem !important;
+  }
+  #level-builder {
+    padding: 10px;
+  }
+  #level-builder .builder-header {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+  }
+  #level-builder .builder-header h1 {
+    font-size: 1.5em;
+  }
+  #level-builder .builder-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  #level-builder .builder-options {
+    order: 2;
+    padding: 15px;
+  }
+  #level-builder .grid-section {
+    order: 1;
+  }
+  #level-builder #grid-wrapper {
+    padding: 15px;
+    transform: scale(0.8);
+    transform-origin: center;
+  }
+  #level-builder .palette-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  #level-builder .tile-btn {
+    width: 50px;
+    height: 50px;
+  }
+  .game-layout .game-content {
+    flex-direction: column;
+  }
+  .game-layout .game-content #hud {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.5em;
+  }
+  .game-layout .game-content #hud .game-heading {
+    font-size: 2em;
+  }
+  .game-layout .game-content #hud .game-btns {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .game-layout .game-content #hud .game-btns .pushable .front {
+    font-size: 1rem !important;
+  }
+  .game-layout .game-content .game-board-container {
+    margin: 20px 0;
+    transform: scale(0.7);
+    transform-origin: center;
+  }
+  .modal.show .modal-content {
+    width: 90%;
+    margin: auto 5%;
+    padding: 20px;
+    font-size: 1em;
+  }
+  .modal.show .modal-content h1, .modal.show .modal-content h2 {
+    font-size: 1.5em;
+  }
+  .modal.show .modal-content .pushable .front {
+    padding: 10px 20px;
+    font-size: 1em !important;
+  }
+}
+@media (min-width: 577px) and (max-width: 768px) {
+  .menu-container .game-title {
+    font-size: 4rem;
+  }
+  .menu-container .community-info {
+    padding: 20px;
+  }
+  .menu-container .community-info h3 {
+    font-size: 1.3em;
+  }
+  .menu-container .menu-buttons {
+    width: 90%;
+    gap: 20px;
+  }
+  .menu-container .menu-buttons .pushable .front {
+    padding: 12px 30px;
+    font-size: 1.5rem !important;
+  }
+  #level-builder .builder-layout {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  #level-builder .builder-options {
+    order: 2;
+  }
+  #level-builder .grid-section {
+    order: 1;
+  }
+  #level-builder #grid-wrapper {
+    transform: scale(0.9);
+  }
+  .game-layout .game-content {
+    flex-direction: column;
+  }
+  .game-layout .game-content #hud {
+    width: 100%;
+    font-size: 2em;
+  }
+  .game-layout .game-content #hud .game-btns .pushable .front {
+    font-size: 1.2rem !important;
+  }
+  .game-layout .game-content .game-board-container {
+    transform: scale(0.85);
+  }
+}
 @media (min-width: 769px) and (max-width: 992px) {
   .sound-toggle {
     top: 3%;
@@ -5,21 +147,28 @@
     transform: scale(2);
     opacity: 1;
   }
-  .builder-info {
-    max-width: 100%;
-  }
   .menu-container {
     height: 100vh;
     margin-top: 0;
   }
   .menu-container .game-title {
-    font-size: 8rem;
+    font-size: 6rem;
+  }
+  .menu-container .community-info {
+    max-width: 600px;
+    padding: 25px;
+  }
+  .menu-container .community-info h3 {
+    font-size: 1.8em;
+  }
+  .menu-container .community-info p {
+    font-size: 1em;
   }
   .menu-container .menu-buttons {
     width: 80%;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 30px;
     margin-top: 30px;
   }
   .menu-container .menu-buttons .pushable span {
@@ -27,136 +176,92 @@
   }
   .menu-container .menu-buttons .pushable .front {
     padding: 16px 32px;
-    font-size: 4.5rem !important;
+    font-size: 2.5rem !important;
   }
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    font-size: large;
-  }
-  .modal.show {
-    display: flex !important;
-    animation: fadeIn 0.3s ease forwards;
+  .menu-container .current-level-info {
+    max-width: 500px;
+    margin-top: 30px;
   }
   .modal.show .modal-content {
     margin: auto 10vw !important;
-    width: 100%;
-    font-size: 2em;
+    width: 80%;
+    font-size: 1.5em;
   }
   .modal.show .modal-content .pushable span {
     border-radius: 30px;
   }
   .modal.show .modal-content .pushable .front {
     padding: 16px 32px;
-    font-size: 2em !important;
-  }
-  .credits-modal .modal-content {
-    width: 100%;
-  }
-  .credits-modal .modal-content .name {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-align: start;
-  }
-  .credits-modal .modal-content .name p {
-    width: 50%;
-  }
-  .credits-modal .modal-content .social-links {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    text-align: start;
-  }
-  .credits-modal .modal-content .social-links .social-link .pushable span {
-    border-radius: 10px;
-  }
-  .credits-modal .modal-content .social-links .social-link .pushable .front {
-    padding: 16px 32px;
-    font-size: 0.5em !important;
+    font-size: 1.5em !important;
   }
   #time-up-modal .modal-content {
-    font-size: 3.5em;
+    font-size: 2em;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
-    min-height: 80%;
+    min-height: 60%;
   }
   #time-up-modal .modal-content h2 {
-    font-size: 3em;
+    font-size: 2em;
   }
   #time-up-modal .modal-content .name-input-container {
     width: 100%;
   }
   #time-up-modal .modal-content .name-input-container input {
-    width: 100%;
-    font-size: 1em;
+    width: 80%;
+    font-size: 0.8em;
     text-align: center;
   }
   #time-up-modal .modal-content .modal-buttons {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     width: 100%;
-    justify-content: space-between;
-  }
-  #time-up-modal .modal-content .modal-buttons #final-menu-btn {
-    margin-left: 0;
-    margin-top: 20px;
+    justify-content: center;
+    gap: 20px;
   }
   #time-up-modal .modal-content .modal-buttons .pushable {
     margin: 0;
-    margin-top: 5px;
   }
   #time-up-modal .modal-content .modal-buttons .pushable span {
-    border-radius: 30px;
+    border-radius: 20px;
   }
   #time-up-modal .modal-content .modal-buttons .pushable .front {
-    padding: 16px 32px;
-    font-size: 1em !important;
+    padding: 12px 24px;
+    font-size: 0.8em !important;
   }
   .game-layout {
     display: none;
-    flex-direction: column-reverse;
-    margin: auto;
   }
   .game-layout .game-content {
-    margin-top: 10vh;
-    display: flex;
-    flex-direction: column-reverse;
-  }
-  .game-layout .game-content #hud {
+    margin-top: 5vh;
     display: flex;
     flex-direction: row;
-    width: 100%;
-    margin-top: 5vh;
   }
-  .game-layout .game-content #hud #game-controls {
-    font-size: 0.5em;
-    border-radius: 5px solid black;
+  .game-layout .game-content #hud {
+    width: 45%;
+    font-size: 2em;
   }
   .game-layout .game-content #hud #game-controls .level-info-text {
-    font-size: 2em;
+    font-size: 1em;
+  }
+  .game-layout .game-content #hud #game-controls .level-info-text .level-title-wrapper small {
+    font-size: 0.5em;
   }
   .game-layout .game-content #hud #game-controls .game-btns {
     display: flex;
+    flex-direction: row;
   }
   .game-layout .game-content #hud #game-controls .game-btns .pushable span {
-    border-radius: 30px;
+    border-radius: 20px;
   }
   .game-layout .game-content #hud #game-controls .game-btns .pushable .front {
-    padding: 16px 32px;
-    font-size: 4rem !important;
+    padding: 12px 24px;
+    font-size: 1.5rem !important;
   }
   .game-layout .game-content .game-board-container {
-    margin: 5vh;
-    transform: scale(1.5);
+    margin: 2vh;
+    transform: scale(1.1);
   }
   .game-layout .game-content .game-board-container .gameboard-wrapper #game-board {
     height: 100% !important;
@@ -164,17 +269,112 @@
   }
   #level-builder {
     display: none;
-    flex-direction: column-reverse;
+  }
+  #level-builder .builder-header {
+    margin-bottom: 20px;
+  }
+  #level-builder .builder-header h1 {
+    font-size: 2em;
+  }
+  #level-builder .builder-layout {
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
   }
   #level-builder .builder-options {
-    height: 30%;
-    width: 100%;
-    margin-top: 10vh;
+    padding: 15px;
+  }
+  #level-builder .builder-options .level-settings h3 {
+    font-size: 1em;
+  }
+  #level-builder .builder-options .level-settings label {
+    font-size: 0.85em;
+  }
+  #level-builder .builder-options .tile-palette h3 {
+    font-size: 1em;
+  }
+  #level-builder .builder-options .tile-palette h4 {
+    font-size: 0.9em;
+  }
+  #level-builder .builder-options .palette-grid {
+    gap: 8px;
+  }
+  #level-builder .builder-options .tile-btn {
+    width: 55px;
+    height: 55px;
+  }
+  #level-builder .builder-options .builder-actions .pushable .front {
+    font-size: 1em;
+    padding: 10px 20px;
+  }
+  #level-builder .builder-options .validation-status {
+    padding: 15px;
+  }
+  #level-builder .builder-options .validation-status h4 {
+    font-size: 0.95em;
+  }
+  #level-builder .builder-options .validation-status .status-message {
+    font-size: 0.85em;
+    padding: 8px;
+  }
+  #level-builder .builder-options .validation-status .validation-checklist li {
+    font-size: 0.85em;
+    padding: 6px 0;
   }
   #level-builder #grid-wrapper {
-    transform: scale(1.5);
+    padding: 30px;
+    transform: scale(1);
   }
-  #level-builder .builder-action-btns .pushable .front {
-    font-size: 2.5em;
+  #level-builder #grid-container {
+    gap: 8px;
+  }
+  #level-builder #grid-container .grid-cell {
+    width: 65px;
+    height: 65px;
+  }
+  #level-builder .test-controls {
+    max-width: 350px;
+    padding: 15px;
+  }
+  #level-builder .test-controls h3 {
+    font-size: 1.2em;
+  }
+  #level-builder .test-controls .test-info {
+    font-size: 1em;
+  }
+  #level-builder .test-controls .test-info span {
+    padding: 8px 12px;
+  }
+  #level-builder .test-controls .pushable .front {
+    font-size: 1em;
+    padding: 10px 20px;
+  }
+}
+@media (min-width: 993px) {
+  #level-builder .builder-layout {
+    max-width: 1400px;
+  }
+  #level-builder .builder-options {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+  .game-layout .game-content .game-board-container {
+    transform: scale(1.2);
+    margin-left: 15vw;
+  }
+}
+@media (max-width: 400px) {
+  .menu-container .game-title {
+    font-size: 2rem;
+  }
+  .menu-container .game-title span:nth-child(5) {
+    display: none;
+  }
+  #level-builder #grid-wrapper {
+    transform: scale(0.65);
+  }
+  .game-layout .game-board-container {
+    transform: scale(0.6);
   }
 }/*# sourceMappingURL=responsive.css.map */

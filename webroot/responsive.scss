@@ -1,11 +1,202 @@
+// responsive.scss - Complete file with UGC updates
+
 // Styles for small screens (up to 576px)
 @media (max-width: 576px) {
-  // Add your styles for small screens here
+  .menu-container {
+    padding: 10px;
+    margin-top: 5vh;
+    
+    .game-title {
+      font-size: 2.5rem;
+    }
+    
+    .community-info {
+      padding: 15px;
+      margin: 15px 0;
+      
+      h3 {
+        font-size: 1.2em;
+      }
+      
+      p {
+        font-size: 0.8em;
+      }
+    }
+    
+    .menu-buttons {
+      width: 100%;
+      gap: 15px;
+      
+      .pushable .front {
+        padding: 10px 20px;
+        font-size: 1rem !important;
+      }
+    }
+  }
+  
+  // Builder mobile layout
+  #level-builder {
+    padding: 10px;
+    
+    .builder-header {
+      flex-direction: column;
+      gap: 10px;
+      padding: 15px;
+      
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+    
+    .builder-layout {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    
+    .builder-options {
+      order: 2;
+      padding: 15px;
+    }
+    
+    .grid-section {
+      order: 1;
+    }
+    
+    #grid-wrapper {
+      padding: 15px;
+      transform: scale(0.8);
+      transform-origin: center;
+    }
+    
+    .palette-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .tile-btn {
+      width: 50px;
+      height: 50px;
+    }
+  }
+  
+  // Game layout mobile
+  .game-layout {
+    .game-content {
+      flex-direction: column;
+      
+      #hud {
+        width: 100%;
+        padding: 10px;
+        font-size: 1.5em;
+        
+        .game-heading {
+          font-size: 2em;
+        }
+        
+        .game-btns {
+          flex-direction: column;
+          gap: 10px;
+          
+          .pushable .front {
+            font-size: 1rem !important;
+          }
+        }
+      }
+      
+      .game-board-container {
+        margin: 20px 0;
+        transform: scale(0.7);
+        transform-origin: center;
+      }
+    }
+  }
+  
+  // Modal mobile
+  .modal {
+    &.show .modal-content {
+      width: 90%;
+      margin: auto 5%;
+      padding: 20px;
+      font-size: 1em;
+      
+      h1, h2 {
+        font-size: 1.5em;
+      }
+      
+      .pushable .front {
+        padding: 10px 20px;
+        font-size: 1em !important;
+      }
+    }
+  }
 }
 
 // Styles for medium screens (between 577px and 768px)
 @media (min-width: 577px) and (max-width: 768px) {
-  // Add your styles for medium screens here
+  .menu-container {
+    .game-title {
+      font-size: 4rem;
+    }
+    
+    .community-info {
+      padding: 20px;
+      
+      h3 {
+        font-size: 1.3em;
+      }
+    }
+    
+    .menu-buttons {
+      width: 90%;
+      gap: 20px;
+      
+      .pushable .front {
+        padding: 12px 30px;
+        font-size: 1.5rem !important;
+      }
+    }
+  }
+  
+  // Builder tablet layout
+  #level-builder {
+    .builder-layout {
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+    
+    .builder-options {
+      order: 2;
+    }
+    
+    .grid-section {
+      order: 1;
+    }
+    
+    #grid-wrapper {
+      transform: scale(0.9);
+    }
+  }
+  
+  // Game layout tablet
+  .game-layout {
+    .game-content {
+      flex-direction: column;
+      
+      #hud {
+        width: 100%;
+        font-size: 2em;
+        
+        .game-btns {
+          .pushable .front {
+            font-size: 1.2rem !important;
+          }
+        }
+      }
+      
+      .game-board-container {
+        transform: scale(0.85);
+      }
+    }
+  }
 }
 
 // Styles for large screens (between 769px and 992px)
@@ -17,55 +208,57 @@
     opacity: 1;
   }
 
-  .builder-info{
-    max-width: 100%;
-    
-  }
-
   .menu-container {
     height: 100vh;
     margin-top: 0;
+    
     .game-title {
-      font-size: 8rem;
+      font-size: 6rem;
+    }
+    
+    .community-info {
+      max-width: 600px;
+      padding: 25px;
+      
+      h3 {
+        font-size: 1.8em;
+      }
+      
+      p {
+        font-size: 1em;
+      }
     }
 
     .menu-buttons {
       width: 80%;
       display: flex;
       flex-direction: column;
-      gap: 40px;
+      gap: 30px;
       margin-top: 30px;
+      
       .pushable {
         span {
           border-radius: 30px;
         }
         .front {
           padding: 16px 32px;
-          font-size: 4.5rem !important;
+          font-size: 2.5rem !important;
         }
       }
+    }
+    
+    .current-level-info {
+      max-width: 500px;
+      margin-top: 30px;
     }
   }
 
   .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    font-size: large;
-
     &.show {
-      display: flex !important;
-      animation: fadeIn 0.3s ease forwards;
-
       .modal-content {
         margin: auto 10vw !important;
-        width: 100%;
-        font-size: 2em;
+        width: 80%;
+        font-size: 1.5em;
 
         .pushable {
           span {
@@ -73,122 +266,92 @@
           }
           .front {
             padding: 16px 32px;
-            font-size: 2em !important;
-          }
-        }
-      }
-    }
-  }
-  .credits-modal {
-    .modal-content {
-      width: 100%;
-      .name {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        text-align: start;
-        p {
-          width: 50%;
-        }
-      }
-      .social-links {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        text-align: start;
-        .social-link {
-          .pushable {
-            span {
-              border-radius: 10px;
-            }
-            .front {
-              padding: 16px 32px;
-              font-size: 0.5em !important;
-            }
+            font-size: 1.5em !important;
           }
         }
       }
     }
   }
 
+  // Time up modal specific
   #time-up-modal {
     .modal-content {
-      font-size: 3.5em;
+      font-size: 2em;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-evenly;
-      min-height: 80%;
+      min-height: 60%;
+      
       h2 {
-        font-size: 3em;
+        font-size: 2em;
       }
+      
       .name-input-container {
         width: 100%;
         input {
-          width: 100%;
-          font-size: 1em;
+          width: 80%;
+          font-size: 0.8em;
           text-align: center;
         }
       }
+      
       .modal-buttons {
         display: flex;
-        flex-direction: column;
-        // align-items: center;
+        flex-direction: row;
         width: 100%;
-        justify-content: space-between;
+        justify-content: center;
+        gap: 20px;
 
-        #final-menu-btn {
-          margin-left: 0;
-          margin-top: 20px;
-        }
         .pushable {
           margin: 0;
-          margin-top: 5px;
           span {
-            border-radius: 30px;
+            border-radius: 20px;
           }
           .front {
-            padding: 16px 32px;
-            font-size: 1em !important;
+            padding: 12px 24px;
+            font-size: 0.8em !important;
           }
         }
       }
     }
   }
 
+  // Game layout large tablet
   .game-layout {
-
-    // display: flex;
     display: none;
-    flex-direction: column-reverse;
-    margin: auto;
+    
     .game-content {
-      margin-top: 10vh;
+      margin-top: 5vh;
       display: flex;
-      flex-direction: column-reverse;
+      flex-direction: row;
 
       #hud {
-        display: flex;
-        flex-direction: row;
-        width: 100%;
-        margin-top: 5vh;
+        width: 45%;
+        font-size: 2em;
+        
         #game-controls {
-          font-size: 0.5em;
-          border-radius: 5px solid black;
-
           .level-info-text {
-            font-size: 2em;
+            font-size: 1em;
+            
+            .level-title-wrapper {
+              small {
+                font-size: 0.5em;
+              }
+            }
           }
+          
           .game-btns {
             display: flex;
-            // flex-direction: column;
+            flex-direction: row;
+            
             .pushable {
               span {
-                border-radius: 30px;
+                border-radius: 20px;
               }
               .front {
-                padding: 16px 32px;
-                font-size: 4rem !important;
+                padding: 12px 24px;
+                font-size: 1.5rem !important;
               }
             }
           }
@@ -196,8 +359,9 @@
       }
 
       .game-board-container {
-        margin: 5vh;
-        transform: scale(1.5);
+        margin: 2vh;
+        transform: scale(1.1);
+        
         .gameboard-wrapper {
           #game-board {
             height: 100% !important;
@@ -208,23 +372,114 @@
     }
   }
 
+  // Builder large tablet
   #level-builder {
-    // display: flex;
     display: none;
-    flex-direction: column-reverse;
+    
+    .builder-header {
+      margin-bottom: 20px;
+      
+      h1 {
+        font-size: 2em;
+      }
+    }
+    
+    .builder-layout {
+      grid-template-columns: 300px 1fr;
+      gap: 20px;
+    }
+    
     .builder-options {
-      height: 30%;
-      width: 100%;
-      margin-top: 10vh;
-    }
-    #grid-wrapper {
-      transform: scale(1.5);
-    }
-    .builder-action-btns {
-      .pushable {
-        .front {
-          font-size: 2.5em;
+      padding: 15px;
+      
+      .level-settings {
+        h3 {
+          font-size: 1em;
         }
+        
+        label {
+          font-size: 0.85em;
+        }
+      }
+      
+      .tile-palette {
+        h3 {
+          font-size: 1em;
+        }
+        
+        h4 {
+          font-size: 0.9em;
+        }
+      }
+      
+      .palette-grid {
+        gap: 8px;
+      }
+      
+      .tile-btn {
+        width: 55px;
+        height: 55px;
+      }
+      
+      .builder-actions {
+        .pushable .front {
+          font-size: 1em;
+          padding: 10px 20px;
+        }
+      }
+      
+      .validation-status {
+        padding: 15px;
+        
+        h4 {
+          font-size: 0.95em;
+        }
+        
+        .status-message {
+          font-size: 0.85em;
+          padding: 8px;
+        }
+        
+        .validation-checklist li {
+          font-size: 0.85em;
+          padding: 6px 0;
+        }
+      }
+    }
+    
+    #grid-wrapper {
+      padding: 30px;
+      transform: scale(1);
+    }
+    
+    #grid-container {
+      gap: 8px;
+      
+      .grid-cell {
+        width: 65px;
+        height: 65px;
+      }
+    }
+    
+    .test-controls {
+      max-width: 350px;
+      padding: 15px;
+      
+      h3 {
+        font-size: 1.2em;
+      }
+      
+      .test-info {
+        font-size: 1em;
+        
+        span {
+          padding: 8px 12px;
+        }
+      }
+      
+      .pushable .front {
+        font-size: 1em;
+        padding: 10px 20px;
       }
     }
   }
@@ -232,5 +487,56 @@
 
 // Styles for extra large screens (above 992px)
 @media (min-width: 993px) {
-  // Add your styles for extra large screens here
+  // Default styles already optimized for desktop
+  
+  // Ensure builder uses full space on large screens
+  #level-builder {
+    .builder-layout {
+      max-width: 1400px;
+    }
+    
+    .builder-options {
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+    }
+  }
+  
+  // Larger game board on big screens
+  .game-layout {
+    .game-content {
+      .game-board-container {
+        transform: scale(1.2);
+        margin-left: 15vw;
+      }
+    }
+  }
+}
+
+// Special handling for very small screens
+@media (max-width: 400px) {
+  .menu-container {
+    .game-title {
+      font-size: 2rem;
+      
+      span {
+        &:nth-child(5) {
+          display: none; // Hide space on very small screens
+        }
+      }
+    }
+  }
+  
+  #level-builder {
+    #grid-wrapper {
+      transform: scale(0.65);
+    }
+  }
+  
+  .game-layout {
+    .game-board-container {
+      transform: scale(0.6);
+    }
+  }
 }
