@@ -1,24 +1,36 @@
 /** @typedef {import('../src/message.ts').DevvitSystemMessage} DevvitSystemMessage */
 /** @typedef {import('../src/message.ts').WebViewMessage} WebViewMessage */
 
-export let fetchedCustomLevelData = {};
-export let fetchedLeaderboard = [];
-export let fetchedCustomLevelLeaderboard = [];
-export let fetchedUsername = "SuperUser";
+// Create a data store object that can be modified
+const dataStore = {
+  fetchedCustomLevelData: {},
+  fetchedLeaderboard: [],
+  fetchedCustomLevelLeaderboard: [],
+  fetchedUsername: "SuperUser"
+};
+
+// Export references that will update when dataStore updates
+export let fetchedCustomLevelData = dataStore.fetchedCustomLevelData;
+export let fetchedLeaderboard = dataStore.fetchedLeaderboard;
+export let fetchedCustomLevelLeaderboard = dataStore.fetchedCustomLevelLeaderboard;
+export let fetchedUsername = dataStore.fetchedUsername;
 
 export async function addScore(playerName, playerScore, levelReached, isCustomLevelScore) {
   if (isCustomLevelScore) {
     await postWebViewMessage({ type: "addCustomLevelScore", data: { playerName, playerScore, levelReached } });
-    fetchedCustomLevelLeaderboard.push({ playerName, playerScore, levelReached });
+    dataStore.fetchedCustomLevelLeaderboard.push({ playerName, playerScore, levelReached });
+    fetchedCustomLevelLeaderboard = dataStore.fetchedCustomLevelLeaderboard;
   } else {
-    fetchedLeaderboard.push({ playerName, playerScore, levelReached });
+    dataStore.fetchedLeaderboard.push({ playerName, playerScore, levelReached });
+    fetchedLeaderboard = dataStore.fetchedLeaderboard;
     await postWebViewMessage({ type: "addScore", data: { playerName, playerScore, levelReached } });
   }
 }
 
 export async function addCustomLevel(levelData) {
   await postWebViewMessage({ type: "addCustomLevel", data: { levelData } });
-  fetchedCustomLevelData = levelData;
+  dataStore.fetchedCustomLevelData = levelData;
+  fetchedCustomLevelData = dataStore.fetchedCustomLevelData;
 }
 
 addEventListener("load", async () => {
@@ -43,31 +55,41 @@ class App {
       case "updateLeaderboard": {
         const { leaderboard } = message.data;
         const leaderboardScores = await JSON.parse(leaderboard);
-        fetchedLeaderboard = leaderboardScores;
+        dataStore.fetchedLeaderboard = leaderboardScores;
+        fetchedLeaderboard = dataStore.fetchedLeaderboard;
         break;
       }
       case "updateCustomLevelLeaderboard": {
         const { customLevelLeaderboard } = message.data;
         const customLevelLeaderboardScores = await JSON.parse(customLevelLeaderboard);
-        fetchedCustomLevelLeaderboard = customLevelLeaderboardScores;
+        dataStore.fetchedCustomLevelLeaderboard = customLevelLeaderboardScores;
+        fetchedCustomLevelLeaderboard = dataStore.fetchedCustomLevelLeaderboard;
         break;
       }
       case "updateUsername": {
         const { username } = message.data;
-        fetchedUsername = username;
+        dataStore.fetchedUsername = username;
+        fetchedUsername = dataStore.fetchedUsername;
         break;
       }
       case "updateCustomLevel": {
         const { customLevelData } = message.data;
-        fetchedCustomLevelData = await JSON.parse(customLevelData);
+        dataStore.fetchedCustomLevelData = await JSON.parse(customLevelData);
+        fetchedCustomLevelData = dataStore.fetchedCustomLevelData;
         break;
       }
       case "setInitialData": {
         const { leaderboard, username, customLevelData, customLevelLeaderboard } = message.data;
-        fetchedLeaderboard = await JSON.parse(leaderboard);
-        fetchedCustomLevelData = await JSON.parse(customLevelData);
-        fetchedCustomLevelLeaderboard = await JSON.parse(customLevelLeaderboard);
-        fetchedUsername = username;
+        dataStore.fetchedLeaderboard = await JSON.parse(leaderboard);
+        dataStore.fetchedCustomLevelData = await JSON.parse(customLevelData);
+        dataStore.fetchedCustomLevelLeaderboard = await JSON.parse(customLevelLeaderboard);
+        dataStore.fetchedUsername = username;
+        
+        // Update exported references
+        fetchedLeaderboard = dataStore.fetchedLeaderboard;
+        fetchedCustomLevelData = dataStore.fetchedCustomLevelData;
+        fetchedCustomLevelLeaderboard = dataStore.fetchedCustomLevelLeaderboard;
+        fetchedUsername = dataStore.fetchedUsername;
 
         document.dispatchEvent(new Event("initialDataLoaded"));
         break;

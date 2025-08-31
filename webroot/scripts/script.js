@@ -1,4 +1,4 @@
-// scripts/script.js - Complete final version with all updates
+// scripts/script.js - Complete fixed version with publish button fix
 import { TileType } from "./tileTypes.js";
 import { SoundHandler, sounds } from "./soundHandler.js";
 import * as menuBackground from "./menuBackground.js";
@@ -104,33 +104,41 @@ function updateMenuForCurrentLevel() {
   const levelCreator = document.getElementById("level-creator");
   const bestScore = document.getElementById("best-score");
 
-  if (customLevelExists && fetchedCustomLevelData) {
+  // Re-check if level exists from reddisClient
+  customLevelExists = reddisClient.fetchedCustomLevelData && 
+                     Object.keys(reddisClient.fetchedCustomLevelData).length > 0;
+
+  if (customLevelExists && reddisClient.fetchedCustomLevelData) {
+    // Show play button and level info
+    playBtn.style.display = "block";
     levelInfo.style.display = "block";
-    levelCreator.textContent = fetchedCustomLevelData.builtBy || "Anonymous";
+    levelCreator.textContent = reddisClient.fetchedCustomLevelData.builtBy || "Anonymous";
     
     // Find best score
     if (fetchedCustomLevelLeaderboard && fetchedCustomLevelLeaderboard.length > 0) {
       const topScore = Math.max(...fetchedCustomLevelLeaderboard.map(s => parseInt(s.playerScore)));
       bestScore.textContent = topScore;
+    } else {
+      bestScore.textContent = "--";
     }
     
     playBtn.innerHTML = `
       <span class="shadow"></span>
       <span class="edge"></span>
-      <span class="front">Play Current Level</span>
+      <span class="front">Play Level</span>
     `;
-    buildBtn.innerHTML = `
-      <span class="shadow"></span>
-      <span class="edge"></span>
-      <span class="front">Create New Level (Replace)</span>
-    `;
+    
+    // Hide builder button when level exists
+    buildBtn.style.display = "none";
   } else {
+    // No level exists - show builder button only
     levelInfo.style.display = "none";
     playBtn.style.display = "none";
+    buildBtn.style.display = "block";
     buildBtn.innerHTML = `
       <span class="shadow"></span>
       <span class="edge"></span>
-      <span class="front">Create First Level</span>
+      <span class="front">Create Level</span>
     `;
   }
 }
@@ -156,6 +164,7 @@ function setupSoundHandlers() {
     button.onclick = (e) => {
       e.stopPropagation();
       SoundHandler.toggleSound();
+      isMuted = !isMuted;
       if (!isMuted) {
         handleInteraction();
       }
@@ -194,7 +203,7 @@ function setupMenuButtons() {
 
   // Play Custom Level
   document.getElementById("play-custom-level-btn").onclick = () => {
-    if (!customLevelExists || !fetchedCustomLevelData) {
+    if (!customLevelExists || !reddisClient.fetchedCustomLevelData) {
       showInfoBadge("No level available! Create one first!");
       return;
     }
@@ -208,7 +217,7 @@ function setupMenuButtons() {
 }
 
 function startCustomLevel() {
-  if (!fetchedCustomLevelData || !fetchedCustomLevelData.levelData) {
+  if (!reddisClient.fetchedCustomLevelData || !reddisClient.fetchedCustomLevelData.levelData) {
     showInfoBadge("No custom level available!");
     return;
   }
@@ -232,15 +241,16 @@ function startCustomLevel() {
     });
   }, 100);
   
-  currentLevel = fetchedCustomLevelData;
-  loadLevel(currentLevel);
+  currentLevel = reddisClient.fetchedCustomLevelData;
   gameStarted = true;
+  loadLevel(currentLevel);
   
-  // Update HUD
-  document.getElementById("level-title").textContent = currentLevel.levelData.level_title || "Community Level";
+  // Update HUD with level title
+  const displayTitle = currentLevel.levelData.level_title || `Level by ${currentLevel.builtBy}`;
+  document.getElementById("level-title").textContent = displayTitle;
   document.getElementById("level-author").textContent = currentLevel.builtBy || "Anonymous";
   
-  showInfoBadge(`Level by ${currentLevel.builtBy}!`);
+  showInfoBadge(`Playing: ${displayTitle}`);
 }
 
 function loadLevel(levelData) {
@@ -255,12 +265,17 @@ function loadLevel(levelData) {
   totalScore = 0;
   
   renderBoard();
-  startTimer();
   updateDisplay();
+  
+  // Start timer after rendering
+  if (gameStarted) {
+    startTimer();
+  }
 }
 
 function resetLevel() {
   if (currentLevel) {
+    gameStarted = true;
     loadLevel(currentLevel);
     showInfoBadge("Level reset!");
   }
@@ -312,7 +327,7 @@ function updateDisplay() {
 }
 
 function onArrowClick(row, col) {
-  if (isBreakingTile) return;
+  if (isBreakingTile || !gameStarted) return;
 
   const arrowType = board[row][col];
   if (!isArrowTile(arrowType)) return;
@@ -399,6 +414,7 @@ function checkWinOrLose() {
 
 function handleLevelComplete() {
   stopTimer();
+  gameStarted = false;
   totalScore = calculateScore();
   sounds.levelComplete.play();
   
@@ -423,13 +439,18 @@ function handleLevelComplete() {
 }
 
 function calculateScore() {
-  const moveBonus = (maxMoves - movesUsed) * 10;
-  const timeBonus = timeLeft * 2;
-  return Math.max(0, 100 + moveBonus + timeBonus);
+  // Improved scoring system
+  const baseScore = 100;
+  const moveBonus = Math.max(0, (maxMoves - movesUsed) * 15); // 15 points per unused move
+  const timeBonus = Math.max(0, timeLeft * 3); // 3 points per second remaining
+  const efficiencyBonus = movesLeft > 0 ? Math.floor((movesLeft / maxMoves) * 50) : 0; // Up to 50 bonus points
+  
+  return baseScore + moveBonus + timeBonus + efficiencyBonus;
 }
 
 function startTimer() {
   if (!gameStarted || isTimerRunning) return;
+  
   isTimerRunning = true;
   updateTimerDisplay();
 
@@ -448,17 +469,22 @@ function startTimer() {
 }
 
 function stopTimer() {
-  clearInterval(timer);
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
   isTimerRunning = false;
 }
 
 function updateTimerDisplay() {
   const timerElement = document.getElementById("timer");
-  timerElement.textContent = `Time: ${timeLeft}s`;
-  if (timeLeft <= 10) {
-    timerElement.classList.add("warning");
-  } else {
-    timerElement.classList.remove("warning");
+  if (timerElement) {
+    timerElement.textContent = `Time: ${timeLeft}s`;
+    if (timeLeft <= 10) {
+      timerElement.classList.add("warning");
+    } else {
+      timerElement.classList.remove("warning");
+    }
   }
 }
 
@@ -469,8 +495,8 @@ function handleTimeUp() {
   
   document.getElementById("try-again-btn").onclick = () => {
     modal.classList.remove("show");
-    resetLevel();
     gameStarted = true;
+    resetLevel();
   };
   
   document.getElementById("time-menu-btn").onclick = () => {
@@ -489,13 +515,20 @@ function returnToMenu() {
   const hud = document.getElementById("hud");
   
   // Remove slide-in classes
-  gameboardWrapper.classList.remove("slide-in");
-  hud.classList.remove("slide-in");
+  if (gameboardWrapper) {
+    gameboardWrapper.classList.remove("slide-in");
+  }
+  if (hud) {
+    hud.classList.remove("slide-in");
+  }
   
   document.querySelector(".game-layout").style.display = "none";
   document.querySelector(".menu-container").style.display = "flex";
   document.getElementById("level-builder").style.display = "none";
   
+  // Re-fetch current level data and update menu
+  customLevelExists = reddisClient.fetchedCustomLevelData && 
+                     Object.keys(reddisClient.fetchedCustomLevelData).length > 0;
   updateMenuForCurrentLevel();
 }
 
@@ -570,14 +603,15 @@ function setupBuilder() {
     stopLevelTest();
   });
 
-  // Save level
+  // Save level - FIXED VERSION
   saveLevelBtn.addEventListener("click", async () => {
     if (!levelVerified) {
       showInfoBadge("Please test and complete your level first!");
       return;
     }
 
-    const levelTitle = document.getElementById("level_title").value || "Untitled Puzzle";
+    const levelTitleInput = document.getElementById("level_title").value.trim();
+    const levelTitle = levelTitleInput || `Puzzle by ${fetchedUsername}`;
     const moves = parseInt(document.getElementById("moves").value) || 10;
     const timer = parseInt(document.getElementById("custom_level_timer").value) || 30;
 
@@ -591,14 +625,33 @@ function setupBuilder() {
       builtBy: fetchedUsername,
     };
 
+    // Save to Redis
     await reddisClient.addCustomLevel(customLevelData);
+    
+    // Mark that level exists (don't try to modify the read-only export)
     customLevelExists = true;
     
-    // Disable builder after publishing
-    document.getElementById("level-builder").style.display = "none";
+    // Show success message
+    showInfoBadge("Level published! Now everyone can play it!");
     
-    showInfoBadge("Level published! It's now live for everyone to play!");
-    returnToMenu();
+    // Stop any ongoing test
+    if (isTestingLevel) {
+      stopLevelTest();
+    }
+    
+    // Small delay to let the user see the success message and reload data
+    setTimeout(async () => {
+      // The data will be updated through the addCustomLevel function
+      // Check if we can access the updated data
+      if (reddisClient.fetchedCustomLevelData && 
+          Object.keys(reddisClient.fetchedCustomLevelData).length > 0) {
+        customLevelExists = true;
+      }
+      
+      // Hide builder and return to menu
+      document.getElementById("level-builder").style.display = "none";
+      returnToMenu();
+    }, 1500);
   });
 
   // Back to menu
@@ -955,7 +1008,7 @@ function breakCrackedTile(tileElement) {
     particle.style.top = `${Math.random() * 100}%`;
     particle.style.width = `${5 + Math.random() * 10}px`;
     particle.style.height = particle.style.width;
-    particle.style.backgroundImage = 'url("./resources/images/cracked.png")';
+    particle.style.backgroundImage = 'url("resources/images/cracked.png")';
     particle.style.backgroundSize = "cover";
     tileElement.appendChild(particle);
     particles.push(particle);

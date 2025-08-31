@@ -2,13 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Tile Slide - Community Levels</title>
-    <link rel="icon" href="./resources/images/fav-icon.png" />
-    <link rel="stylesheet" href="./resources/fontawesome-free-6.7.2-web/css/all.min.css" />
-    <link rel="stylesheet" href="./bootstrap.min.css" />
-    <link rel="stylesheet" href="./resources/bootstrap-css/bootstrap.min.css" />
+    <title>Tile Slide</title>
+    <link rel="icon" href="resources/images/fav-icon.png" />
+    <link rel="stylesheet" href="resources/fontawesome-free-6.7.2-web/css/all.min.css" />
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <link rel="stylesheet" href="resources/bootstrap-css/bootstrap.min.css" />
     <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="./responsive.css" />
+    <link rel="stylesheet" href="responsive.css" />
   </head>
   <body>
     <!-- Sound Toggle Button -->
@@ -22,7 +22,7 @@
       </span>
     </button>
 
-    <!-- Simplified Main Menu -->
+    <!-- Main Menu -->
     <div id="main-menu" class="menu-container">
       <h1 class="game-title">
         <span>T</span>
@@ -37,22 +37,17 @@
         <span>e</span>
       </h1>
 
-      <div class="community-info">
-        <h3>🎮 Community Puzzle Builder</h3>
-        <p>Create and share puzzles with the Reddit community!</p>
-      </div>
-
       <div class="menu-buttons">
-        <button id="play-custom-level-btn" class="pushable green-btn">
+        <button id="play-custom-level-btn" class="pushable green-btn" style="display: none;">
           <span class="shadow"></span>
           <span class="edge"></span>
-          <span class="front">Play Community Level</span>
+          <span class="front">Play Level</span>
         </button>
 
         <button id="build-btn" class="pushable orange-btn">
           <span class="shadow"></span>
           <span class="edge"></span>
-          <span class="front">Create New Level</span>
+          <span class="front">Create Level</span>
         </button>
 
         <button id="how-to-play-btn" class="pushable blue-btn">
@@ -64,17 +59,17 @@
         <button id="leaderboard-btn" class="pushable golden-btn">
           <span class="shadow"></span>
           <span class="edge"></span>
-          <span class="front">Level Leaderboard</span>
+          <span class="front">Leaderboard</span>
         </button>
       </div>
 
       <div class="current-level-info" id="current-level-info" style="display: none;">
-        <h4>Current Level by: <span id="level-creator"></span></h4>
+        <h4>Level by: <span id="level-creator"></span></h4>
         <p>Best Score: <span id="best-score">--</span></p>
       </div>
     </div>
 
-    <!-- How to Play Modal (Updated) -->
+    <!-- How to Play Modal -->
     <div id="how-to-play-modal" class="modal">
       <div class="modal-content">
         <h1>🎮 How to Play</h1>
@@ -119,7 +114,7 @@
         <div id="hud">
           <div id="game-controls">
             <div class="level-info-text">
-              <h1 class="game-heading">Community Level</h1>
+              <h1 class="game-heading">Tile Slide</h1>
               <div class="level-title-wrapper">
                 <span id="level-title">Loading...</span>
                 <small>by <span id="level-author">--</span></small>
@@ -199,7 +194,7 @@
       </div>
     </div>
 
-    <!-- Leaderboard Modal (Simplified) -->
+    <!-- Leaderboard Modal -->
     <div id="leaderboard-modal" class="modal">
       <div class="modal-content">
         <h2>🏆 Level Leaderboard</h2>
@@ -214,7 +209,7 @@
       </div>
     </div>
 
-    <!-- Enhanced Level Builder -->
+    <!-- Level Builder -->
     <section id="level-builder" class="container">
       <div class="builder-header">
         <h1>🔨 Level Builder</h1>
@@ -293,8 +288,8 @@
               <span>Design your level and test it to verify it's solvable!</span>
             </div>
             <ul id="validation-checklist" class="validation-checklist">
-              <li id="check-blocks">❌ Add at least one block</li>
-              <li id="check-holes">❌ Blocks and holes must match</li>
+              <li id="check-blocks">❌ Add pushable tiles or use arrows only</li>
+              <li id="check-holes">❌ Add at least one hole</li>
               <li id="check-arrows">❌ Add at least one arrow</li>
               <li id="check-solvable">❌ Test and complete the level</li>
             </ul>
@@ -307,7 +302,7 @@
             <div id="grid-container"></div>
           </div>
           
-          <!-- Test Mode Controls (Initially Hidden) -->
+          <!-- Test Mode Controls -->
           <div id="test-controls" class="test-controls" style="display: none;">
             <h3>Testing Mode</h3>
             <div class="test-info">
@@ -325,7 +320,7 @@
     </section>
 
     <!-- Scripts -->
-    <script type="module" src="./webViewScript.js"></script>
-    <script type="module" src="./scripts/script.js"></script>
+    <script type="module" src="webViewScript.js"></script>
+    <script type="module" src="scripts/script.js"></script>
   </body>
 </html>
