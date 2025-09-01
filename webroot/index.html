@@ -38,7 +38,7 @@
       </h1>
 
       <div class="menu-buttons">
-        <button id="play-custom-level-btn" class="pushable green-btn" style="display: none;">
+        <button id="play-custom-level-btn" class="pushable green-btn" style="display: none">
           <span class="shadow"></span>
           <span class="edge"></span>
           <span class="front">Play Level</span>
@@ -63,7 +63,7 @@
         </button>
       </div>
 
-      <div class="current-level-info" id="current-level-info" style="display: none;">
+      <div class="current-level-info" id="current-level-info" style="display: none">
         <h4>Level by: <span id="level-creator"></span></h4>
         <p>Best Score: <span id="best-score">--</span></p>
       </div>
@@ -79,7 +79,8 @@
             <li>🎯 Push colored tiles into holes to clear the level</li>
             <li>⬅️➡️⬆️⬇️ Click arrow tiles to push tiles in that direction</li>
             <li>💥 Click cracked tiles to break them (uses 1 move)</li>
-            <li>⏱️ Complete before time runs out</li>
+            <li>🔨 Click drill tiles to create a hole at their location (uses 1 move)</li>
+            <li>ⱠTime runs out, so work quickly!</li>
             <li>🏆 Fewer moves = Higher score!</li>
           </ul>
 
@@ -93,11 +94,13 @@
 
           <h3>📦 Tile Types:</h3>
           <ul>
-            <li><strong>Block:</strong> Green tiles that can be pushed</li>
-            <li><strong>Cracked:</strong> Can be pushed or broken</li>
-            <li><strong>Wall:</strong> Immovable obstacles</li>
-            <li><strong>Hole:</strong> Target destinations for blocks</li>
-            <li><strong>Arrows:</strong> Push tiles in their direction</li>
+            <li><strong>Block (Green):</strong> Basic pushable tile</li>
+            <li><strong>Cracked (Gray):</strong> Can be pushed or clicked to break</li>
+            <li><strong>Drill (Brown):</strong> Can be pushed or clicked to create a hole</li>
+            <li><strong>Wall (Dark Gray):</strong> Immovable obstacles</li>
+            <li><strong>Hole (White):</strong> Target destinations for tiles</li>
+            <li><strong>Regular Arrows (Blue):</strong> Push tiles 1 space in their direction</li>
+            <li><strong>Power Arrows (Orange):</strong> Push tiles twice - more powerful!</li>
           </ul>
         </div>
         <button id="close-instructions-btn" class="pushable green-btn">
@@ -213,31 +216,47 @@
     <section id="level-builder" class="container">
       <div class="builder-header">
         <h1>🔨 Level Builder</h1>
-        <button id="builder-to-menu-btn" class="pushable blue-btn">
-          <span class="shadow"></span>
-          <span class="edge"></span>
-          <span class="front">← Back</span>
-        </button>
+        <div class="builder-header-buttons">
+          <button id="builder-how-to-play-btn" class="pushable blue-btn">
+            <span class="shadow"></span>
+            <span class="edge"></span>
+            <span class="front">How to Play</span>
+          </button>
+          <button id="builder-to-menu-btn" class="pushable blue-btn">
+            <span class="shadow"></span>
+            <span class="edge"></span>
+            <span class="front">← Back</span>
+          </button>
+        </div>
       </div>
 
       <div class="builder-layout">
         <div class="builder-options">
+          <!-- Validation Status -->
+          <div id="validation-status" class="validation-status">
+            <h4>Level Status</h4>
+            <div id="status-message" class="status-message">
+              <i class="fas fa-info-circle"></i>
+              <span>Design your level and test it to verify it's solvable!</span>
+            </div>
+          </div>
+
           <!-- Level Settings -->
           <div class="level-settings">
             <h3>Level Settings</h3>
             <label for="level_title">Level Name:</label>
             <input class="builder-input" type="text" id="level_title" placeholder="My Awesome Puzzle" />
-            
+
             <label for="moves">Move Limit:</label>
             <input class="builder-input" type="number" id="moves" value="10" min="1" max="50" />
-            
+
             <label for="custom_level_timer">Time Limit (seconds):</label>
             <input class="builder-input" type="number" id="custom_level_timer" value="30" min="10" max="120" />
           </div>
 
           <!-- Tile Palette -->
           <div class="tile-palette">
-            <h3>Tiles</h3>
+            <h3>Basic Tiles</h3>
             <div class="palette-grid">
               <button class="tile-btn blank selected" data-tile="BLANK" title="Eraser">
                 <i class="fas fa-eraser"></i>
@@ -245,17 +264,26 @@
               <button class="tile-btn block" data-tile="BLOCK" title="Block"></button>
               <button class="tile-btn hole" data-tile="HOLE" title="Hole"></button>
               <button class="tile-btn cracked" data-tile="CRACKED" title="Cracked"></button>
+              <button class="tile-btn drill" data-tile="DRILL" title="Drill - Click to create hole"></button>
               <button class="tile-btn wall" data-tile="WALL" title="Wall">
                 <i class="fas fa-square"></i>
               </button>
             </div>
             
-            <h4>Arrows</h4>
+            <h4>Regular Arrows</h4>
             <div class="palette-grid">
               <button class="tile-btn arrow_up" data-tile="ARROW_UP"></button>
               <button class="tile-btn arrow_down" data-tile="ARROW_DOWN"></button>
               <button class="tile-btn arrow_left" data-tile="ARROW_LEFT"></button>
               <button class="tile-btn arrow_right" data-tile="ARROW_RIGHT"></button>
+            </div>
+            
+            <h4>Power Arrows (2x Push)</h4>
+            <div class="palette-grid">
+              <button class="tile-btn double_arrow_up" data-tile="DOUBLE_ARROW_UP" title="Double Push Up"></button>
+              <button class="tile-btn double_arrow_down" data-tile="DOUBLE_ARROW_DOWN" title="Double Push Down"></button>
+              <button class="tile-btn double_arrow_left" data-tile="DOUBLE_ARROW_LEFT" title="Double Push Left"></button>
+              <button class="tile-btn double_arrow_right" data-tile="DOUBLE_ARROW_RIGHT" title="Double Push Right"></button>
             </div>
           </div>
 
@@ -266,33 +294,18 @@
               <span class="edge"></span>
               <span class="front">Clear Board</span>
             </button>
-            
+
             <button id="test-level-btn" class="pushable orange-btn">
               <span class="shadow"></span>
               <span class="edge"></span>
               <span class="front">Test Level</span>
             </button>
-            
+
             <button id="save-level" class="pushable green-btn" disabled>
               <span class="shadow"></span>
               <span class="edge"></span>
               <span class="front">Publish Level ✓</span>
             </button>
-          </div>
-
-          <!-- Validation Status -->
-          <div id="validation-status" class="validation-status">
-            <h4>Level Status</h4>
-            <div id="status-message" class="status-message">
-              <i class="fas fa-info-circle"></i>
-              <span>Design your level and test it to verify it's solvable!</span>
-            </div>
-            <ul id="validation-checklist" class="validation-checklist">
-              <li id="check-blocks">❌ Add pushable tiles or use arrows only</li>
-              <li id="check-holes">❌ Add at least one hole</li>
-              <li id="check-arrows">❌ Add at least one arrow</li>
-              <li id="check-solvable">❌ Test and complete the level</li>
-            </ul>
           </div>
         </div>
 
@@ -301,9 +314,9 @@
           <div id="grid-wrapper">
             <div id="grid-container"></div>
           </div>
-          
+
           <!-- Test Mode Controls -->
-          <div id="test-controls" class="test-controls" style="display: none;">
+          <div id="test-controls" class="test-controls" style="display: none">
             <h3>Testing Mode</h3>
             <div class="test-info">
               <span id="test-moves">Moves: 0</span>
