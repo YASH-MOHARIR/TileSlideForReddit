@@ -1,4 +1,4 @@
-// scripts/script.js - Complete fixed version with publish button fix
+// scripts/script.js - Fixed version with proper Double Arrow support
 import { TileType } from "./tileTypes.js";
 import { SoundHandler, sounds } from "./soundHandler.js";
 import * as menuBackground from "./menuBackground.js";
@@ -185,6 +185,12 @@ function setupMenuButtons() {
   const howToPlayModal = document.getElementById("how-to-play-modal");
   howToPlayBtn.onclick = () => howToPlayModal.classList.add("show");
   
+  // Builder How to Play button
+  const builderHowToPlayBtn = document.getElementById("builder-how-to-play-btn");
+  if (builderHowToPlayBtn) {
+    builderHowToPlayBtn.onclick = () => howToPlayModal.classList.add("show");
+  }
+  
   document.getElementById("close-instructions-btn").onclick = () => {
     howToPlayModal.classList.remove("show");
   };
@@ -245,10 +251,22 @@ function startCustomLevel() {
   gameStarted = true;
   loadLevel(currentLevel);
   
-  // Update HUD with level title
+  // Update HUD with level title and trigger animation
   const displayTitle = currentLevel.levelData.level_title || `Level by ${currentLevel.builtBy}`;
-  document.getElementById("level-title").textContent = displayTitle;
-  document.getElementById("level-author").textContent = currentLevel.builtBy || "Anonymous";
+  const levelTitleEl = document.getElementById("level-title");
+  const levelAuthorEl = document.getElementById("level-author");
+  
+  // Reset animation by removing and re-adding
+  levelTitleEl.style.animation = 'none';
+  levelAuthorEl.style.animation = 'none';
+  
+  levelTitleEl.textContent = displayTitle;
+  levelAuthorEl.textContent = currentLevel.builtBy || "Anonymous";
+  
+  // Force reflow and restart animation
+  void levelTitleEl.offsetWidth;
+  levelTitleEl.style.animation = '';
+  levelAuthorEl.style.animation = '';
   
   showInfoBadge(`Playing: ${displayTitle}`);
 }
@@ -264,7 +282,7 @@ function loadLevel(levelData) {
   timeLeft = levelData.timer || 30;
   totalScore = 0;
   
-  renderBoard();
+  renderBoard(true); // Animate on level load
   updateDisplay();
   
   // Start timer after rendering
@@ -281,9 +299,10 @@ function resetLevel() {
   }
 }
 
-function renderBoard() {
+function renderBoard(animate = false) {
   boardElement.innerHTML = "";
-
+  
+  let tileIndex = 0;
   for (let row = 0; row < 6; row++) {
     for (let col = 0; col < 6; col++) {
       const tile = board[row][col];
@@ -293,12 +312,35 @@ function renderBoard() {
       tileDiv.classList.add("tile", tile);
       tileDiv.dataset.row = row;
       tileDiv.dataset.col = col;
-      tileDiv.style.transform = `translate(${col * 80}px, ${row * 80}px)`;
+      
+      // Fix positioning - ensure consistent placement
+      const xPos = col * 80;
+      const yPos = row * 80;
+      tileDiv.style.transform = `translate(${xPos}px, ${yPos}px)`;
+      tileDiv.style.position = 'absolute';
+      tileDiv.style.left = '0px';
+      tileDiv.style.top = '0px';
+      
+      // Only add animation on initial load or reset
+      if (animate) {
+        tileDiv.style.opacity = "0";
+        tileDiv.style.scale = "0";
+        
+        setTimeout(() => {
+          tileDiv.style.transition = "opacity 0.3s ease, scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)";
+          tileDiv.style.opacity = "1";
+          tileDiv.style.scale = "1";
+        }, tileIndex * 50);
+        
+        tileIndex++;
+      }
 
+      // Handle all arrow types (regular and double) - Simple approach
       if (isArrowTile(tile)) {
         tileDiv.addEventListener("click", () => onArrowClick(row, col));
       }
 
+      // Handle cracked tiles
       if (tile === TileType.CRACKED) {
         tileDiv.addEventListener("click", () => {
           if (isBreakingTile) return;
@@ -313,6 +355,42 @@ function renderBoard() {
             isBreakingTile = false;
             checkWinOrLose();
           }, 600);
+        });
+      }
+
+      // Handle drill tiles
+      if (tile === TileType.DRILL) {
+        tileDiv.addEventListener("click", () => {
+          if (isBreakingTile) return;
+          isBreakingTile = true;
+          sounds.crackingTile.play();
+          
+          // Start drilling animation
+          tileDiv.classList.add("drilling");
+          
+          movesLeft--;
+          movesUsed++;
+          updateDisplay();
+          
+          // After 1 second, create hole and remove drill
+          setTimeout(() => {
+            board[row][col] = TileType.HOLE;
+            tileDiv.remove();
+            
+            // Create hole element
+            const holeDiv = document.createElement("div");
+            holeDiv.classList.add("tile", "hole");
+            holeDiv.dataset.row = row;
+            holeDiv.dataset.col = col;
+            holeDiv.style.transform = `translate(${xPos}px, ${yPos}px)`;
+            holeDiv.style.position = 'absolute';
+            holeDiv.style.left = '0px';
+            holeDiv.style.top = '0px';
+            boardElement.appendChild(holeDiv);
+            
+            isBreakingTile = false;
+            checkWinOrLose();
+          }, 1000);
         });
       }
 
@@ -333,15 +411,58 @@ function onArrowClick(row, col) {
   if (!isArrowTile(arrowType)) return;
 
   const [dRow, dCol] = getDirection(arrowType);
-  const didMove = pushTiles(row, col, dRow, dCol);
-
-  if (didMove) {
+  const isDouble = isDoubleArrowTile(arrowType);
+  
+  // Always try the first push
+  const firstMove = pushTiles(row, col, dRow, dCol);
+  
+  if (firstMove) {
     movesLeft--;
     movesUsed++;
     updateDisplay();
+    
+    if (isDouble) {
+      // For double arrows, wait for first animation to complete, then push again
+      setTimeout(() => {
+        // Find where the arrow moved to after the first push
+        let newArrowRow = -1, newArrowCol = -1;
+        
+        // Search for the arrow in its new position
+        for (let r = 0; r < 6; r++) {
+          for (let c = 0; c < 6; c++) {
+            if (board[r][c] === arrowType) {
+              newArrowRow = r;
+              newArrowCol = c;
+              break;
+            }
+          }
+          if (newArrowRow !== -1) break;
+        }
+        
+        // If we found the arrow, push from its new position
+        if (newArrowRow !== -1 && newArrowCol !== -1) {
+          const secondMove = pushTiles(newArrowRow, newArrowCol, dRow, dCol);
+          
+          // Re-render the board to fix event listeners after double push
+          setTimeout(() => {
+            renderBoard(false);
+            checkWinOrLose();
+          }, 250);
+        } else {
+          // Arrow might have fallen into a hole, just check win condition
+          setTimeout(() => {
+            checkWinOrLose();
+          }, 100);
+        }
+      }, 250); // Wait for first animation
+    } else {
+      // For single arrows, re-render the board to fix event listeners
+      setTimeout(() => {
+        renderBoard(false);
+        checkWinOrLose();
+      }, 250);
+    }
   }
-
-  checkWinOrLose();
 }
 
 function pushTiles(startRow, startCol, dRow, dCol) {
@@ -384,7 +505,6 @@ function pushTiles(startRow, startCol, dRow, dCol) {
     }
   }
 
-  setTimeout(() => renderBoard(), 700);
   return somethingMoved;
 }
 
@@ -490,6 +610,7 @@ function updateTimerDisplay() {
 
 function handleTimeUp() {
   gameStarted = false;
+  sounds.gameOver.play(); // Play game over sound when time is up
   const modal = document.getElementById("time-up-modal");
   modal.classList.add("show");
   
@@ -611,7 +732,13 @@ function setupBuilder() {
     }
 
     const levelTitleInput = document.getElementById("level_title").value.trim();
-    const levelTitle = levelTitleInput || `Puzzle by ${fetchedUsername}`;
+    // Fun default titles
+    const funTitles = [
+      "Slide Master", "Puzzle Rush", "Block Party", "Arrow Maze",
+      "Tile Tango", "Push It!", "Slide Quest", "Block Buster"
+    ];
+    const randomTitle = funTitles[Math.floor(Math.random() * funTitles.length)];
+    const levelTitle = levelTitleInput || randomTitle;
     const moves = parseInt(document.getElementById("moves").value) || 10;
     const timer = parseInt(document.getElementById("custom_level_timer").value) || 30;
 
@@ -697,76 +824,26 @@ function renderBuilderBoard() {
 }
 
 function validateLevel() {
-  const checkBlocks = document.getElementById("check-blocks");
-  const checkHoles = document.getElementById("check-holes");
-  const checkArrows = document.getElementById("check-arrows");
-  const checkSolvable = document.getElementById("check-solvable");
   const statusMessage = document.getElementById("status-message");
   const saveBtn = document.getElementById("save-level");
-
-  let blocks = 0, holes = 0, arrows = 0, cracked = 0;
-  
-  for (let row = 0; row < 6; row++) {
-    for (let col = 0; col < 6; col++) {
-      const tile = builderBoard[row][col];
-      if (tile === TileType.BLOCK) blocks++;
-      if (tile === TileType.CRACKED) cracked++;
-      if (tile === TileType.HOLE) holes++;
-      if (isArrowTile(tile)) arrows++;
-    }
-  }
-
-  const totalPushable = blocks + cracked;
-
-  // Updated validation rules
-  if (totalPushable > 0) {
-    // If user added blocks/cracked, they must match holes
-    checkBlocks.innerHTML = totalPushable === holes ? 
-      "✅ Pushable tiles match holes" : 
-      `❌ ${totalPushable} pushable tiles, ${holes} holes - must match!`;
-  } else {
-    // No blocks required - arrows can push each other
-    checkBlocks.innerHTML = "✅ No blocks needed (arrows push arrows)";
-  }
-  
-  checkHoles.innerHTML = holes > 0 ? 
-    `✅ Has ${holes} hole${holes > 1 ? 's' : ''}` : 
-    "❌ Add at least one hole";
-    
-  checkArrows.innerHTML = arrows > 0 ? 
-    `✅ Has ${arrows} arrow tile${arrows > 1 ? 's' : ''}` : 
-    "❌ Add at least one arrow";
-    
-  checkSolvable.innerHTML = levelVerified ? 
-    "✅ Level tested and verified!" : 
-    "❌ Test and complete the level";
-
-  // Update status message
-  let canTest = false;
-  
-  if (arrows === 0) {
-    statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Add at least one arrow tile';
-    statusMessage.className = "status-message status-error";
-  } else if (holes === 0) {
-    statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Add at least one hole';
-    statusMessage.className = "status-message status-error";
-  } else if (totalPushable > 0 && totalPushable !== holes) {
-    statusMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Pushable tiles must equal holes';
-    statusMessage.className = "status-message status-warning";
-  } else if (!levelVerified) {
-    statusMessage.innerHTML = '<i class="fas fa-info-circle"></i> Test your level to verify it\'s solvable';
-    statusMessage.className = "status-message status-info";
-    canTest = true;
-  } else {
-    statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> Level verified! You can still make changes or publish';
-    statusMessage.className = "status-message status-success";
-    canTest = true;
-  }
-
-  // Enable/disable test button based on validation
   const testBtn = document.getElementById("test-level-btn");
+
+  // Simple validation - only check if level was tested and verified
+  if (!levelVerified) {
+    statusMessage.innerHTML = '<i class="fas fa-info-circle"></i> Design your level and test it to verify it\'s solvable';
+    statusMessage.className = "status-message status-info";
+  } else {
+    statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> Level verified! Ready to publish or keep editing';
+    statusMessage.className = "status-message status-success";
+    
+    // Add success class to validation status
+    const validationStatus = document.getElementById("validation-status");
+    validationStatus.classList.add("verified");
+  }
+
+  // Always allow testing (no restrictions)
   if (testBtn) {
-    testBtn.disabled = !canTest;
+    testBtn.disabled = false;
   }
   
   // Only enable save button if level is verified
@@ -774,31 +851,7 @@ function validateLevel() {
 }
 
 function startLevelTest() {
-  // Validate basic requirements first
-  let blocks = 0, holes = 0, arrows = 0, cracked = 0;
-  for (let row = 0; row < 6; row++) {
-    for (let col = 0; col < 6; col++) {
-      const tile = builderBoard[row][col];
-      if (tile === TileType.BLOCK) blocks++;
-      if (tile === TileType.CRACKED) cracked++;
-      if (tile === TileType.HOLE) holes++;
-      if (isArrowTile(tile)) arrows++;
-    }
-  }
-
-  const totalPushable = blocks + cracked;
-
-  // Updated validation for testing
-  if (arrows === 0 || holes === 0) {
-    showInfoBadge("Add arrows and holes before testing!");
-    return;
-  }
-  
-  if (totalPushable > 0 && totalPushable !== holes) {
-    showInfoBadge("Number of pushable tiles must equal holes!");
-    return;
-  }
-
+  // No validation requirements - let user test anything
   isTestingLevel = true;
   testBoard = builderBoard.map(row => row.slice());
   testMovesLeft = parseInt(document.getElementById("moves").value) || 10;
@@ -866,6 +919,18 @@ function renderTestBoard() {
         cell.style.cursor = "pointer";
       }
 
+      if (tile === TileType.DRILL) {
+        cell.addEventListener("click", () => {
+          testBoard[row][col] = TileType.HOLE;
+          testMovesUsed++;
+          testMovesLeft--;
+          updateTestDisplay();
+          renderTestBoard();
+          checkTestWin();
+        });
+        cell.style.cursor = "pointer";
+      }
+
       gridContainer.appendChild(cell);
     }
   }
@@ -876,18 +941,51 @@ function onTestArrowClick(row, col) {
   if (!isArrowTile(arrowType)) return;
 
   const [dRow, dCol] = getDirection(arrowType);
-  const didMove = pushTestTiles(row, col, dRow, dCol);
-
-  if (didMove) {
+  const isDouble = isDoubleArrowTile(arrowType);
+  
+  // Always try the first push
+  const firstMove = pushTestTiles(row, col, dRow, dCol);
+  
+  if (firstMove) {
     testMovesUsed++;
     testMovesLeft--;
     updateTestDisplay();
-    setTimeout(() => {
+    
+    if (isDouble) {
+      // For double arrows, find where the arrow moved and push again
+      setTimeout(() => {
+        // Find where the arrow moved to after the first push
+        let newArrowRow = -1, newArrowCol = -1;
+        
+        // Search for the arrow in its new position
+        for (let r = 0; r < 6; r++) {
+          for (let c = 0; c < 6; c++) {
+            if (testBoard[r][c] === arrowType) {
+              newArrowRow = r;
+              newArrowCol = c;
+              break;
+            }
+          }
+          if (newArrowRow !== -1) break;
+        }
+        
+        // If we found the arrow, push from its new position
+        if (newArrowRow !== -1 && newArrowCol !== -1) {
+          const secondMove = pushTestTiles(newArrowRow, newArrowCol, dRow, dCol);
+        }
+        
+        renderTestBoard();
+        checkTestWin();
+      }, 50); // Small delay for visual feedback
+    } else {
+      // For single arrows, render and check immediately
       renderTestBoard();
       checkTestWin();
-    }, 300);
+    }
   }
 }
+
+// Remove the double push functions that were added by mistake
 
 function pushTestTiles(startRow, startCol, dRow, dCol) {
   const chain = [];
@@ -928,8 +1026,8 @@ function checkTestWin() {
   for (let row = 0; row < 6; row++) {
     for (let col = 0; col < 6; col++) {
       const tile = testBoard[row][col];
-      // Check for blocks, cracked, AND arrows (since arrows can push each other)
-      if (tile === TileType.BLOCK || tile === TileType.CRACKED || isArrowTile(tile)) {
+      // Check for blocks, cracked, drill, AND all arrow types
+      if (tile === TileType.BLOCK || tile === TileType.CRACKED || tile === TileType.DRILL || isArrowTile(tile)) {
         anyPushable = true;
         break;
       }
@@ -978,45 +1076,74 @@ function isWithinBounds(r, c) {
   return r >= 0 && r < 6 && c >= 0 && c < 6;
 }
 
+// Check if a tile is a double arrow
+function isDoubleArrowTile(tile) {
+  return tile === TileType.DOUBLE_ARROW_UP || tile === TileType.DOUBLE_ARROW_DOWN ||
+         tile === TileType.DOUBLE_ARROW_LEFT || tile === TileType.DOUBLE_ARROW_RIGHT;
+}
+
+// Check if a tile is any type of arrow (regular or double)
 function isArrowTile(tile) {
   return tile === TileType.ARROW_UP || tile === TileType.ARROW_DOWN ||
-         tile === TileType.ARROW_LEFT || tile === TileType.ARROW_RIGHT;
+         tile === TileType.ARROW_LEFT || tile === TileType.ARROW_RIGHT ||
+         tile === TileType.DOUBLE_ARROW_UP || tile === TileType.DOUBLE_ARROW_DOWN ||
+         tile === TileType.DOUBLE_ARROW_LEFT || tile === TileType.DOUBLE_ARROW_RIGHT;
 }
 
 function isPushable(tile) {
-  return isArrowTile(tile) || tile === TileType.BLOCK || tile === TileType.CRACKED;
+  return isArrowTile(tile) || tile === TileType.BLOCK || tile === TileType.CRACKED || tile === TileType.DRILL;
 }
 
+// Get direction for any arrow type (regular or double)
 function getDirection(arrowType) {
   switch (arrowType) {
-    case TileType.ARROW_UP: return [-1, 0];
-    case TileType.ARROW_DOWN: return [1, 0];
-    case TileType.ARROW_LEFT: return [0, -1];
-    case TileType.ARROW_RIGHT: return [0, 1];
-    default: return [0, 0];
+    case TileType.ARROW_UP:
+    case TileType.DOUBLE_ARROW_UP:
+      return [-1, 0];
+    case TileType.ARROW_DOWN:
+    case TileType.DOUBLE_ARROW_DOWN:
+      return [1, 0];
+    case TileType.ARROW_LEFT:
+    case TileType.DOUBLE_ARROW_LEFT:
+      return [0, -1];
+    case TileType.ARROW_RIGHT:
+    case TileType.DOUBLE_ARROW_RIGHT:
+      return [0, 1];
+    default:
+      return [0, 0];
   }
 }
 
 function breakCrackedTile(tileElement) {
+  // Ensure the tile maintains its current position during the animation
+  const currentTransform = tileElement.style.transform;
+  tileElement.style.transformOrigin = "center";
+  
+  // Add breaking class for wobble animation
   tileElement.classList.add("breaking");
+  
   const particles = [];
   
+  // Create particles within the tile
   for (let i = 0; i < 8; i++) {
     const particle = document.createElement("div");
     particle.className = "particle";
+    particle.style.position = "absolute";
     particle.style.left = `${Math.random() * 100}%`;
     particle.style.top = `${Math.random() * 100}%`;
     particle.style.width = `${5 + Math.random() * 10}px`;
     particle.style.height = particle.style.width;
     particle.style.backgroundImage = 'url("resources/images/cracked.png")';
     particle.style.backgroundSize = "cover";
+    particle.style.pointerEvents = "none";
     tileElement.appendChild(particle);
     particles.push(particle);
   }
 
+  // Animate particles
   particles.forEach((particle) => {
     particle.animate([
-      { transform: "translate(0, 0) rotate(0)", opacity: 1 },
+      { transform: "translate(0, 0) rotate(0deg)", opacity: 1 },
       { transform: `translate(${-50 + Math.random() * 100}px, ${-50 + Math.random() * 100}px) rotate(${-180 + Math.random() * 360}deg)`, opacity: 0 }
     ], {
       duration: 300 + Math.random() * 300,
@@ -1025,16 +1152,22 @@ function breakCrackedTile(tileElement) {
     });
   });
 
-  setTimeout(() => tileElement.remove(), 300);
+  setTimeout(() => tileElement.remove(), 600);
 }
 
 function animateTileToHole(element, oldCol, oldRow, newCol, newRow) {
   sounds.tileVanish.play();
+  
+  // Ensure element has proper positioning
+  element.style.position = 'absolute';
+  element.style.left = '0px';
+  element.style.top = '0px';
+  
   const slideAnimation = element.animate([
     { transform: `translate(${oldCol * 80}px, ${oldRow * 80}px)` },
     { transform: `translate(${newCol * 80}px, ${newRow * 80}px)` }
   ], {
-    duration: 300,
+    duration: 200,
     easing: "ease-out",
     fill: "forwards"
   });
@@ -1054,6 +1187,12 @@ function animateTileToHole(element, oldCol, oldRow, newCol, newRow) {
 
 function animateTileSlide(element, oldCol, oldRow, newCol, newRow) {
   sounds.tileSlide.play();
+  
+  // Ensure element has proper positioning
+  element.style.position = 'absolute';
+  element.style.left = '0px';
+  element.style.top = '0px';
+  
   element.animate([
     { transform: `translate(${oldCol * 80}px, ${oldRow * 80}px)` },
     { transform: `translate(${newCol * 80}px, ${newRow * 80}px)` }
@@ -1062,6 +1201,9 @@ function animateTileSlide(element, oldCol, oldRow, newCol, newRow) {
     easing: "ease-out",
     fill: "forwards"
   });
+  
+  // CRITICAL: Update both the final position AND the data attributes for click detection
+  element.style.transform = `translate(${newCol * 80}px, ${newRow * 80}px)`;
   element.dataset.row = newRow;
   element.dataset.col = newCol;
 }
