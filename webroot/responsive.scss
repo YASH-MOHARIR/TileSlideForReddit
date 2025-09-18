@@ -1,31 +1,198 @@
-// responsive.scss - Complete file with UGC updates
+// responsive.scss - Fixed tile positioning with proper scaling
 
-// Styles for small screens (up to 576px)
-@media (max-width: 576px) {
+// Very small screens (up to 400px)
+@media (max-width: 400px) {
+  body {
+    padding: 0 10px;
+  }
+
   .menu-container {
+    margin-top: 2vh;
     padding: 10px;
+    
+    .game-title {
+      font-size: 1.5rem;
+      
+      span {
+        &:nth-child(5) {
+          display: none; // Hide space on very small screens
+        }
+      }
+    }
+    
+    .current-level-info {
+      max-width: 90%;
+      padding: 10px;
+      
+      h4 {
+        font-size: 0.9em;
+      }
+      
+      p {
+        font-size: 0.75em;
+      }
+    }
+    
+    .menu-buttons {
+      width: 100%;
+      min-width: unset;
+      gap: 10px;
+      
+      .pushable .front {
+        padding: 8px 16px;
+        font-size: 0.85rem !important;
+      }
+    }
+  }
+  
+  // Game board extra small - scale down the entire board
+  .game-layout {
+    padding: 10px 0;
+    
+    .game-content {
+      flex-direction: column;
+      margin-top: 0;
+      
+      #hud {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+        
+        .game-heading {
+          font-size: 1.5rem;
+        }
+        
+        .level-title-wrapper {
+          min-height: 35px;
+          padding: 5px;
+          
+          #level-title {
+            font-size: 0.8rem;
+          }
+          
+          small {
+            font-size: 0.5em;
+          }
+        }
+        
+        #score {
+          font-size: 0.9rem;
+        }
+        
+        .game-btns {
+          gap: 8px;
+          
+          .pushable .front {
+            padding: 6px 10px;
+            font-size: 0.75rem !important;
+          }
+        }
+      }
+      
+      .game-board-container {
+        margin: 10px auto 0;
+        transform: scale(0.55);
+        transform-origin: center top;
+        
+        .game-info {
+          font-size: 1.4rem;
+          margin-bottom: 10px;
+        }
+        
+        .gameboard-wrapper {
+          width: 520px;
+          height: 520px;
+          padding: 20px;
+          
+          #game-board {
+            width: 480px;
+            height: 480px;
+            position: relative;
+          }
+        }
+      }
+    }
+  }
+  
+  // Builder extra small
+  #level-builder {
+    padding: 5px;
+    
+    .builder-header {
+      padding: 10px;
+      margin-bottom: 10px;
+      
+      h1 {
+        font-size: 1.2rem;
+      }
+      
+      .builder-header-buttons {
+        gap: 5px;
+        
+        .pushable .front {
+          padding: 6px 10px;
+          font-size: 0.7rem !important;
+        }
+      }
+    }
+    
+    #grid-wrapper {
+      padding: 10px;
+      transform: scale(0.5);
+      transform-origin: center;
+      
+      #grid-container {
+        grid-template-columns: repeat(6, 70px);
+        grid-template-rows: repeat(6, 70px);
+        gap: 10px;
+        
+        .grid-cell {
+          width: 70px;
+          height: 70px;
+        }
+      }
+    }
+    
+    .palette-grid {
+      grid-template-columns: repeat(3, 1fr);
+      
+      .tile-btn {
+        width: 45px;
+        height: 45px;
+        
+        &::after {
+          width: 30px !important;
+          height: 30px !important;
+        }
+      }
+    }
+  }
+}
+
+// Small screens (401px to 576px)
+@media (min-width: 401px) and (max-width: 576px) {
+  body {
+    padding: 0 15px;
+  }
+
+  .menu-container {
     margin-top: 5vh;
     
     .game-title {
       font-size: 2.5rem;
     }
     
-    .community-info {
-      padding: 15px;
-      margin: 15px 0;
+    .current-level-info {
+      max-width: 350px;
       
-      h3 {
-        font-size: 1.2em;
-      }
-      
-      p {
-        font-size: 0.8em;
+      h4 {
+        font-size: 1em;
       }
     }
     
     .menu-buttons {
-      width: 100%;
-      gap: 15px;
+      width: 90%;
+      max-width: 280px;
       
       .pushable .front {
         padding: 10px 20px;
@@ -34,67 +201,135 @@
     }
   }
   
-  // Builder mobile layout
+  // Game layout mobile - scale at 0.65
+  .game-layout {
+    .game-content {
+      flex-direction: column;
+      margin-top: 0;
+      
+      #hud {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.2rem;
+        
+        .game-heading {
+          font-size: 1.8rem;
+        }
+        
+        .game-btns {
+          .pushable .front {
+            padding: 8px 12px;
+            font-size: 0.85rem !important;
+          }
+        }
+      }
+      
+      .game-board-container {
+        margin: 15px auto 0;
+        transform: scale(0.65);
+        transform-origin: center top;
+        
+        .game-info {
+          font-size: 1.3rem;
+        }
+        
+        .gameboard-wrapper {
+          width: 520px;
+          height: 520px;
+          padding: 20px;
+          
+          #game-board {
+            width: 480px;
+            height: 480px;
+            position: relative;
+          }
+        }
+      }
+    }
+  }
+  
+  // Builder mobile
   #level-builder {
     padding: 10px;
     
     .builder-header {
-      flex-direction: column;
-      gap: 10px;
-      padding: 15px;
-      
       h1 {
-        font-size: 1.5em;
+        font-size: 1.5rem;
       }
-    }
-    
-    .builder-layout {
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-    
-    .builder-options {
-      order: 2;
-      padding: 15px;
-    }
-    
-    .grid-section {
-      order: 1;
+      
+      .builder-header-buttons {
+        .pushable .front {
+          font-size: 0.8rem !important;
+        }
+      }
     }
     
     #grid-wrapper {
       padding: 15px;
-      transform: scale(0.8);
+      transform: scale(0.6);
       transform-origin: center;
+      
+      #grid-container {
+        grid-template-columns: repeat(6, 70px);
+        grid-template-rows: repeat(6, 70px);
+        gap: 10px;
+        
+        .grid-cell {
+          width: 70px;
+          height: 70px;
+        }
+      }
     }
     
     .palette-grid {
       grid-template-columns: repeat(4, 1fr);
+      
+      .tile-btn {
+        width: 50px;
+        height: 50px;
+      }
+    }
+  }
+}
+
+// Tablets (577px to 768px)
+@media (min-width: 577px) and (max-width: 768px) {
+  .menu-container {
+    margin-top: 8vh;
+    
+    .game-title {
+      font-size: 4rem;
     }
     
-    .tile-btn {
-      width: 50px;
-      height: 50px;
+    .menu-buttons {
+      width: 70%;
+      max-width: 400px;
+      
+      .pushable .front {
+        padding: 12px 24px;
+        font-size: 1.2rem !important;
+      }
     }
   }
   
-  // Game layout mobile
+  // Game layout tablet - scale at 0.75
   .game-layout {
     .game-content {
       flex-direction: column;
+      margin-top: 0;
       
       #hud {
         width: 100%;
-        padding: 10px;
-        font-size: 1.5em;
+        font-size: 1.5rem;
+        padding: 20px;
         
         .game-heading {
-          font-size: 2em;
+          font-size: 2.2rem;
         }
         
         .game-btns {
-          flex-direction: column;
-          gap: 10px;
+          flex-direction: row;
+          gap: 15px;
           
           .pushable .front {
             font-size: 1rem !important;
@@ -103,396 +338,309 @@
       }
       
       .game-board-container {
-        margin: 20px 0;
-        transform: scale(0.7);
-        transform-origin: center;
+        margin: 20px auto 0;
+        transform: scale(0.75);
+        transform-origin: center top;
+        
+        .game-info {
+          font-size: 1.2rem;
+        }
+        
+        .gameboard-wrapper {
+          width: 520px;
+          height: 520px;
+          padding: 20px;
+          
+          #game-board {
+            width: 480px;
+            height: 480px;
+            position: relative;
+          }
+        }
       }
     }
   }
   
-  // Modal mobile
-  .modal {
-    &.show .modal-content {
-      width: 90%;
-      margin: auto 5%;
-      padding: 20px;
-      font-size: 1em;
-      
-      h1, h2 {
-        font-size: 1.5em;
-      }
-      
-      .pushable .front {
-        padding: 10px 20px;
-        font-size: 1em !important;
-      }
-    }
-  }
-}
-
-// Styles for medium screens (between 577px and 768px)
-@media (min-width: 577px) and (max-width: 768px) {
-  .menu-container {
-    .game-title {
-      font-size: 4rem;
-    }
-    
-    .community-info {
-      padding: 20px;
-      
-      h3 {
-        font-size: 1.3em;
-      }
-    }
-    
-    .menu-buttons {
-      width: 90%;
-      gap: 20px;
-      
-      .pushable .front {
-        padding: 12px 30px;
-        font-size: 1.5rem !important;
-      }
-    }
-  }
-  
-  // Builder tablet layout
+  // Builder tablet
   #level-builder {
     .builder-layout {
       grid-template-columns: 1fr;
-      gap: 25px;
-    }
-    
-    .builder-options {
-      order: 2;
-    }
-    
-    .grid-section {
-      order: 1;
+      
+      .builder-options {
+        order: 2;
+      }
+      
+      .grid-section {
+        order: 1;
+      }
     }
     
     #grid-wrapper {
-      transform: scale(0.9);
-    }
-  }
-  
-  // Game layout tablet
-  .game-layout {
-    .game-content {
-      flex-direction: column;
-      
-      #hud {
-        width: 100%;
-        font-size: 2em;
-        
-        .game-btns {
-          .pushable .front {
-            font-size: 1.2rem !important;
-          }
-        }
-      }
-      
-      .game-board-container {
-        transform: scale(0.85);
-      }
-    }
-  }
-}
-
-// Styles for large screens (between 769px and 992px)
-@media (min-width: 769px) and (max-width: 992px) {
-  .sound-toggle {
-    top: 3%;
-    right: 5%;
-    transform: scale(2);
-    opacity: 1;
-  }
-
-  .menu-container {
-    height: 100vh;
-    margin-top: 0;
-    
-    .game-title {
-      font-size: 6rem;
+      transform: scale(0.7);
+      transform-origin: center;
     }
     
-    .community-info {
-      max-width: 600px;
-      padding: 25px;
+    #grid-container {
+      grid-template-columns: repeat(6, 70px);
+      grid-template-rows: repeat(6, 70px);
+      gap: 10px;
       
-      h3 {
-        font-size: 1.8em;
-      }
-      
-      p {
-        font-size: 1em;
-      }
-    }
-
-    .menu-buttons {
-      width: 80%;
-      display: flex;
-      flex-direction: column;
-      gap: 30px;
-      margin-top: 30px;
-      
-      .pushable {
-        span {
-          border-radius: 30px;
-        }
-        .front {
-          padding: 16px 32px;
-          font-size: 2.5rem !important;
-        }
+      .grid-cell {
+        width: 70px;
+        height: 70px;
       }
     }
     
-    .current-level-info {
-      max-width: 500px;
-      margin-top: 30px;
-    }
-  }
-
-  .modal {
-    &.show {
-      .modal-content {
-        margin: auto 10vw !important;
-        width: 80%;
-        font-size: 1.5em;
-
-        .pushable {
-          span {
-            border-radius: 30px;
-          }
-          .front {
-            padding: 16px 32px;
-            font-size: 1.5em !important;
-          }
-        }
-      }
-    }
-  }
-
-  // Time up modal specific
-  #time-up-modal {
-    .modal-content {
-      font-size: 2em;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-evenly;
-      min-height: 60%;
-      
-      h2 {
-        font-size: 2em;
-      }
-      
-      .name-input-container {
-        width: 100%;
-        input {
-          width: 80%;
-          font-size: 0.8em;
-          text-align: center;
-        }
-      }
-      
-      .modal-buttons {
-        display: flex;
-        flex-direction: row;
-        width: 100%;
-        justify-content: center;
-        gap: 20px;
-
-        .pushable {
-          margin: 0;
-          span {
-            border-radius: 20px;
-          }
-          .front {
-            padding: 12px 24px;
-            font-size: 0.8em !important;
-          }
-        }
-      }
-    }
-  }
-
-  // Game layout large tablet
-  .game-layout {
-    display: none;
-    
-    .game-content {
-      margin-top: 5vh;
-      display: flex;
-      flex-direction: row;
-
-      #hud {
-        width: 45%;
-        font-size: 2em;
-        
-        #game-controls {
-          .level-info-text {
-            font-size: 1em;
-            
-            .level-title-wrapper {
-              small {
-                font-size: 0.5em;
-              }
-            }
-          }
-          
-          .game-btns {
-            display: flex;
-            flex-direction: row;
-            
-            .pushable {
-              span {
-                border-radius: 20px;
-              }
-              .front {
-                padding: 12px 24px;
-                font-size: 1.5rem !important;
-              }
-            }
-          }
-        }
-      }
-
-      .game-board-container {
-        margin: 2vh;
-        transform: scale(1.1);
-        
-        .gameboard-wrapper {
-          #game-board {
-            height: 100% !important;
-            width: 100% !important;
-          }
-        }
-      }
-    }
-  }
-
-  // Builder large tablet
-  #level-builder {
-    display: none;
-    
-    .builder-header {
-      margin-bottom: 20px;
-      
-      h1 {
-        font-size: 2em;
-      }
-    }
-    
-    .builder-layout {
-      grid-template-columns: 300px 1fr;
-      gap: 20px;
-    }
-    
-    .builder-options {
-      padding: 15px;
-      
-      .level-settings {
-        h3 {
-          font-size: 1em;
-        }
-        
-        label {
-          font-size: 0.85em;
-        }
-      }
-      
-      .tile-palette {
-        h3 {
-          font-size: 1em;
-        }
-        
-        h4 {
-          font-size: 0.9em;
-        }
-      }
-      
-      .palette-grid {
-        gap: 8px;
-      }
+    .palette-grid {
+      grid-template-columns: repeat(6, 1fr);
       
       .tile-btn {
         width: 55px;
         height: 55px;
       }
+    }
+  }
+}
+
+// Large tablets & small desktops (769px to 992px)
+@media (min-width: 769px) and (max-width: 992px) {
+  .menu-container {
+    margin-top: 10vh;
+    
+    .game-title {
+      font-size: 5rem;
+    }
+    
+    .menu-buttons {
+      width: 50%;
+      max-width: 450px;
       
-      .builder-actions {
-        .pushable .front {
-          font-size: 1em;
-          padding: 10px 20px;
+      .pushable .front {
+        padding: 14px 28px;
+        font-size: 1.4rem !important;
+      }
+    }
+  }
+  
+  // Game layout desktop-tablet - scale at 0.85
+  .game-layout {
+    .game-content {
+      flex-direction: row;
+      margin-top: 2vh;
+      align-items: flex-start;
+      padding: 20px;
+      
+      #hud {
+        width: 40%;
+        font-size: 1.8rem;
+        
+        .game-heading {
+          font-size: 2.5rem;
+        }
+        
+        .game-btns {
+          .pushable .front {
+            font-size: 1.1rem !important;
+            padding: 10px 20px;
+          }
         }
       }
       
-      .validation-status {
-        padding: 15px;
+      .game-board-container {
+        margin: 0 0 0 5%;
+        transform: scale(0.85);
+        transform-origin: center center;
         
-        h4 {
-          font-size: 0.95em;
+        .game-info {
+          font-size: 1.2rem;
         }
         
-        .status-message {
-          font-size: 0.85em;
-          padding: 8px;
-        }
-        
-        .validation-checklist li {
-          font-size: 0.85em;
-          padding: 6px 0;
+        .gameboard-wrapper {
+          width: 520px;
+          height: 520px;
+          padding: 20px;
+          
+          #game-board {
+            width: 480px;
+            height: 480px;
+            position: relative;
+          }
         }
       }
+    }
+  }
+  
+  // Builder medium desktop
+  #level-builder {
+    .builder-layout {
+      grid-template-columns: 350px 1fr;
+      gap: 25px;
     }
     
     #grid-wrapper {
-      padding: 30px;
-      transform: scale(1);
+      transform: scale(0.8);
+      transform-origin: center;
     }
     
     #grid-container {
-      gap: 8px;
+      grid-template-columns: repeat(6, 70px);
+      grid-template-rows: repeat(6, 70px);
+      gap: 10px;
       
       .grid-cell {
-        width: 65px;
-        height: 65px;
+        width: 70px;
+        height: 70px;
       }
     }
     
-    .test-controls {
-      max-width: 350px;
-      padding: 15px;
+    .palette-grid {
+      grid-template-columns: repeat(4, 1fr);
       
-      h3 {
-        font-size: 1.2em;
-      }
-      
-      .test-info {
-        font-size: 1em;
-        
-        span {
-          padding: 8px 12px;
-        }
-      }
-      
-      .pushable .front {
-        font-size: 1em;
-        padding: 10px 20px;
+      .tile-btn {
+        width: 60px;
+        height: 60px;
       }
     }
   }
 }
 
-// Styles for extra large screens (above 992px)
-@media (min-width: 993px) {
-  // Default styles already optimized for desktop
+// Desktop (993px to 1200px)
+@media (min-width: 993px) and (max-width: 1200px) {
+  .menu-container {
+    margin-top: 10vh;
+    
+    .game-title {
+      font-size: 7rem;
+    }
+    
+    .menu-buttons {
+      width: 35%;
+      
+      .pushable .front {
+        padding: 16px 32px;
+        font-size: 1.5rem !important;
+      }
+    }
+  }
   
-  // Ensure builder uses full space on large screens
+  // Full size on regular desktop
+  .game-layout {
+    .game-content {
+      padding: 30px;
+      
+      #hud {
+        width: 35%;
+        font-size: 2rem;
+        
+        .game-heading {
+          font-size: 3rem;
+        }
+      }
+      
+      .game-board-container {
+        margin-left: 8%;
+        transform: scale(0.95);
+        transform-origin: center center;
+        
+        .gameboard-wrapper {
+          width: 520px;
+          height: 520px;
+          padding: 20px;
+          
+          #game-board {
+            width: 480px;
+            height: 480px;
+            position: relative;
+          }
+        }
+      }
+    }
+  }
+  
+  #level-builder {
+    .builder-layout {
+      grid-template-columns: 400px 1fr;
+      max-width: 1200px;
+    }
+    
+    #grid-wrapper {
+      transform: scale(0.9);
+      transform-origin: center;
+    }
+    
+    #grid-container {
+      grid-template-columns: repeat(6, 70px);
+      grid-template-rows: repeat(6, 70px);
+      gap: 10px;
+      
+      .grid-cell {
+        width: 70px;
+        height: 70px;
+      }
+    }
+  }
+}
+
+// Large Desktop (1201px+)
+@media (min-width: 1201px) {
+  .menu-container {
+    margin-top: 10vh;
+    
+    .game-title {
+      font-size: 10rem;
+    }
+    
+    .menu-buttons {
+      width: 25%;
+      max-width: 500px;
+    }
+  }
+  
+  // Full size on large screens
+  .game-layout {
+    .game-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px;
+      
+      #hud {
+        width: 35%;
+        max-width: 500px;
+        font-size: 2.5rem;
+        
+        .game-heading {
+          font-size: 3em;
+        }
+      }
+      
+      .game-board-container {
+        margin-left: 10%;
+        transform: scale(1);
+        transform-origin: center center;
+        
+        .gameboard-wrapper {
+          width: 520px;
+          height: 520px;
+          
+          #game-board {
+            width: 480px;
+            height: 480px;
+            position: relative;
+          }
+        }
+      }
+    }
+  }
+  
   #level-builder {
     .builder-layout {
       max-width: 1400px;
+      grid-template-columns: minmax(400px, 450px) 1fr;
+    }
+    
+    #grid-wrapper {
+      transform: scale(1);
+      transform-origin: center;
     }
     
     .builder-options {
@@ -502,41 +650,268 @@
       overflow-y: auto;
     }
   }
+}
+
+// Ultra-wide screens (1400px+)
+@media (min-width: 1400px) {
+  .menu-container {
+    .game-title {
+      font-size: 12rem;
+    }
+  }
   
-  // Larger game board on big screens
   .game-layout {
     .game-content {
+      max-width: 1600px;
+      
       .game-board-container {
-        transform: scale(1.2);
-        margin-left: 15vw;
+        transform: scale(1.1);
       }
     }
   }
 }
 
-// Special handling for very small screens
-@media (max-width: 400px) {
+// Landscape mobile (height constraint)
+@media (max-height: 500px) and (orientation: landscape) {
   .menu-container {
+    margin-top: 2vh;
+    
     .game-title {
       font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    
+    .current-level-info {
+      display: none;
+    }
+    
+    .menu-buttons {
+      gap: 8px;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: auto;
       
-      span {
-        &:nth-child(5) {
-          display: none; // Hide space on very small screens
+      .pushable {
+        width: auto;
+        
+        .front {
+          padding: 6px 12px;
+          font-size: 0.8rem !important;
+        }
+      }
+    }
+  }
+  
+  .game-layout {
+    .game-content {
+      flex-direction: row;
+      
+      #hud {
+        width: 35%;
+        font-size: 1rem;
+        padding: 10px;
+        
+        .game-heading {
+          font-size: 1.3rem;
+        }
+        
+        .level-title-wrapper {
+          min-height: 30px;
+        }
+        
+        .game-btns {
+          gap: 5px;
+          
+          .pushable .front {
+            padding: 5px 10px;
+            font-size: 0.7rem !important;
+          }
+        }
+      }
+      
+      .game-board-container {
+        margin: 0 0 0 3%;
+        transform: scale(0.5);
+        transform-origin: center center;
+        
+        .game-info {
+          font-size: 1.5rem;
+          margin-bottom: 5px;
+        }
+        
+        .gameboard-wrapper {
+          width: 520px;
+          height: 520px;
+          padding: 20px;
+          
+          #game-board {
+            width: 480px;
+            height: 480px;
+            position: relative;
+          }
         }
       }
     }
   }
   
   #level-builder {
+    .builder-header {
+      padding: 5px 10px;
+      margin-bottom: 10px;
+      
+      h1 {
+        font-size: 1.2rem;
+      }
+      
+      .builder-header-buttons {
+        .pushable .front {
+          padding: 4px 8px;
+          font-size: 0.7rem !important;
+        }
+      }
+    }
+    
+    .builder-layout {
+      grid-template-columns: 250px 1fr;
+      gap: 15px;
+    }
+    
     #grid-wrapper {
-      transform: scale(0.65);
+      padding: 10px;
+      transform: scale(0.45);
+      transform-origin: center;
+      
+      #grid-container {
+        grid-template-columns: repeat(6, 70px);
+        grid-template-rows: repeat(6, 70px);
+        gap: 10px;
+        
+        .grid-cell {
+          width: 70px;
+          height: 70px;
+        }
+      }
+    }
+  }
+}
+
+// Modal responsiveness
+.modal {
+  &.show .modal-content {
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    
+    @media (min-width: 576px) {
+      max-width: 500px;
+    }
+    
+    @media (min-width: 768px) {
+      max-width: 600px;
+    }
+    
+    @media (min-width: 992px) {
+      max-width: 700px;
+    }
+    
+    h1, h2 {
+      @media (max-width: 576px) {
+        font-size: 1.3rem;
+      }
+    }
+    
+    .instructions ul li {
+      @media (max-width: 576px) {
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+      }
+    }
+    
+    .pushable .front {
+      @media (max-width: 576px) {
+        padding: 8px 16px;
+        font-size: 0.9rem !important;
+      }
+    }
+  }
+}
+
+// Sound toggle responsive positioning
+#menu-sound-toggle {
+  @media (max-width: 576px) {
+    top: 15px;
+    right: 15px;
+    transform: scale(1);
+    
+    .front {
+      padding: 8px;
+      
+      i {
+        font-size: 0.9rem;
+      }
     }
   }
   
-  .game-layout {
-    .game-board-container {
-      transform: scale(0.6);
+  @media (min-width: 577px) and (max-width: 768px) {
+    top: 20px;
+    right: 20px;
+    transform: scale(1.2);
+  }
+  
+  @media (min-width: 769px) {
+    top: 30px;
+    right: 25px;
+    transform: scale(1.4);
+  }
+}
+
+// Ensure info badge is always visible
+.info-badge {
+  @media (max-width: 576px) {
+    font-size: 0.8em;
+    padding: 10px;
+    max-width: 90vw;
+  }
+}
+
+// Mobile Builder: Board on top, tile selection on bottom
+@media (max-width: 768px) {
+  #level-builder {
+    .builder-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    // BOARD SECTION (TOP)
+    .grid-section {
+      order: 1;
+      width: 100%;
+      
+      #grid-wrapper {
+        margin: 0 auto;
+      }
+    }
+    
+    // TILE SELECTION (BOTTOM)  
+    .builder-options {
+      order: 2;
+      
+      .palette-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      
+      .tile-btn {
+        width: 60px;
+        height: 60px;
+        
+        &.drill::after {
+          width: 80% !important;
+          height: 70% !important;
+        }
+      }
     }
   }
 }

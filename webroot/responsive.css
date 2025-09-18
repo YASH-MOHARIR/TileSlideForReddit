@@ -1,357 +1,481 @@
-@media (max-width: 576px) {
+@media (max-width: 400px) {
+  body {
+    padding: 0 10px;
+  }
   .menu-container {
+    margin-top: 2vh;
     padding: 10px;
+  }
+  .menu-container .game-title {
+    font-size: 1.5rem;
+  }
+  .menu-container .game-title span:nth-child(5) {
+    display: none;
+  }
+  .menu-container .current-level-info {
+    max-width: 90%;
+    padding: 10px;
+  }
+  .menu-container .current-level-info h4 {
+    font-size: 0.9em;
+  }
+  .menu-container .current-level-info p {
+    font-size: 0.75em;
+  }
+  .menu-container .menu-buttons {
+    width: 100%;
+    min-width: unset;
+    gap: 10px;
+  }
+  .menu-container .menu-buttons .pushable .front {
+    padding: 8px 16px;
+    font-size: 0.85rem !important;
+  }
+  .game-layout {
+    padding: 10px 0;
+  }
+  .game-layout .game-content {
+    flex-direction: column;
+    margin-top: 0;
+  }
+  .game-layout .game-content #hud {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+  }
+  .game-layout .game-content #hud .game-heading {
+    font-size: 1.5rem;
+  }
+  .game-layout .game-content #hud .level-title-wrapper {
+    min-height: 35px;
+    padding: 5px;
+  }
+  .game-layout .game-content #hud .level-title-wrapper #level-title {
+    font-size: 0.8rem;
+  }
+  .game-layout .game-content #hud .level-title-wrapper small {
+    font-size: 0.5em;
+  }
+  .game-layout .game-content #hud #score {
+    font-size: 0.9rem;
+  }
+  .game-layout .game-content #hud .game-btns {
+    gap: 8px;
+  }
+  .game-layout .game-content #hud .game-btns .pushable .front {
+    padding: 6px 10px;
+    font-size: 0.75rem !important;
+  }
+  .game-layout .game-content .game-board-container {
+    margin: 10px auto 0;
+    transform: scale(0.55);
+    transform-origin: center top;
+  }
+  .game-layout .game-content .game-board-container .game-info {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+  }
+  .game-layout .game-content .game-board-container .gameboard-wrapper {
+    width: 520px;
+    height: 520px;
+    padding: 20px;
+  }
+  .game-layout .game-content .game-board-container .gameboard-wrapper #game-board {
+    width: 480px;
+    height: 480px;
+    position: relative;
+  }
+  #level-builder {
+    padding: 5px;
+  }
+  #level-builder .builder-header {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  #level-builder .builder-header h1 {
+    font-size: 1.2rem;
+  }
+  #level-builder .builder-header .builder-header-buttons {
+    gap: 5px;
+  }
+  #level-builder .builder-header .builder-header-buttons .pushable .front {
+    padding: 6px 10px;
+    font-size: 0.7rem !important;
+  }
+  #level-builder #grid-wrapper {
+    padding: 10px;
+    transform: scale(0.5);
+    transform-origin: center;
+  }
+  #level-builder #grid-wrapper #grid-container {
+    grid-template-columns: repeat(6, 70px);
+    grid-template-rows: repeat(6, 70px);
+    gap: 10px;
+  }
+  #level-builder #grid-wrapper #grid-container .grid-cell {
+    width: 70px;
+    height: 70px;
+  }
+  #level-builder .palette-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  #level-builder .palette-grid .tile-btn {
+    width: 45px;
+    height: 45px;
+  }
+  #level-builder .palette-grid .tile-btn::after {
+    width: 30px !important;
+    height: 30px !important;
+  }
+}
+@media (min-width: 401px) and (max-width: 576px) {
+  body {
+    padding: 0 15px;
+  }
+  .menu-container {
     margin-top: 5vh;
   }
   .menu-container .game-title {
     font-size: 2.5rem;
   }
-  .menu-container .community-info {
-    padding: 15px;
-    margin: 15px 0;
+  .menu-container .current-level-info {
+    max-width: 350px;
   }
-  .menu-container .community-info h3 {
-    font-size: 1.2em;
-  }
-  .menu-container .community-info p {
-    font-size: 0.8em;
+  .menu-container .current-level-info h4 {
+    font-size: 1em;
   }
   .menu-container .menu-buttons {
-    width: 100%;
-    gap: 15px;
+    width: 90%;
+    max-width: 280px;
   }
   .menu-container .menu-buttons .pushable .front {
     padding: 10px 20px;
     font-size: 1rem !important;
   }
+  .game-layout .game-content {
+    flex-direction: column;
+    margin-top: 0;
+  }
+  .game-layout .game-content #hud {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+  }
+  .game-layout .game-content #hud .game-heading {
+    font-size: 1.8rem;
+  }
+  .game-layout .game-content #hud .game-btns .pushable .front {
+    padding: 8px 12px;
+    font-size: 0.85rem !important;
+  }
+  .game-layout .game-content .game-board-container {
+    margin: 15px auto 0;
+    transform: scale(0.65);
+    transform-origin: center top;
+  }
+  .game-layout .game-content .game-board-container .game-info {
+    font-size: 1.3rem;
+  }
+  .game-layout .game-content .game-board-container .gameboard-wrapper {
+    width: 520px;
+    height: 520px;
+    padding: 20px;
+  }
+  .game-layout .game-content .game-board-container .gameboard-wrapper #game-board {
+    width: 480px;
+    height: 480px;
+    position: relative;
+  }
   #level-builder {
     padding: 10px;
   }
-  #level-builder .builder-header {
-    flex-direction: column;
-    gap: 10px;
-    padding: 15px;
-  }
   #level-builder .builder-header h1 {
-    font-size: 1.5em;
+    font-size: 1.5rem;
   }
-  #level-builder .builder-layout {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  #level-builder .builder-options {
-    order: 2;
-    padding: 15px;
-  }
-  #level-builder .grid-section {
-    order: 1;
+  #level-builder .builder-header .builder-header-buttons .pushable .front {
+    font-size: 0.8rem !important;
   }
   #level-builder #grid-wrapper {
     padding: 15px;
-    transform: scale(0.8);
+    transform: scale(0.6);
     transform-origin: center;
+  }
+  #level-builder #grid-wrapper #grid-container {
+    grid-template-columns: repeat(6, 70px);
+    grid-template-rows: repeat(6, 70px);
+    gap: 10px;
+  }
+  #level-builder #grid-wrapper #grid-container .grid-cell {
+    width: 70px;
+    height: 70px;
   }
   #level-builder .palette-grid {
     grid-template-columns: repeat(4, 1fr);
   }
-  #level-builder .tile-btn {
+  #level-builder .palette-grid .tile-btn {
     width: 50px;
     height: 50px;
   }
+}
+@media (min-width: 577px) and (max-width: 768px) {
+  .menu-container {
+    margin-top: 8vh;
+  }
+  .menu-container .game-title {
+    font-size: 4rem;
+  }
+  .menu-container .menu-buttons {
+    width: 70%;
+    max-width: 400px;
+  }
+  .menu-container .menu-buttons .pushable .front {
+    padding: 12px 24px;
+    font-size: 1.2rem !important;
+  }
   .game-layout .game-content {
     flex-direction: column;
+    margin-top: 0;
   }
   .game-layout .game-content #hud {
     width: 100%;
-    padding: 10px;
-    font-size: 1.5em;
+    font-size: 1.5rem;
+    padding: 20px;
   }
   .game-layout .game-content #hud .game-heading {
-    font-size: 2em;
+    font-size: 2.2rem;
   }
   .game-layout .game-content #hud .game-btns {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    gap: 15px;
   }
   .game-layout .game-content #hud .game-btns .pushable .front {
     font-size: 1rem !important;
   }
   .game-layout .game-content .game-board-container {
-    margin: 20px 0;
-    transform: scale(0.7);
-    transform-origin: center;
+    margin: 20px auto 0;
+    transform: scale(0.75);
+    transform-origin: center top;
   }
-  .modal.show .modal-content {
-    width: 90%;
-    margin: auto 5%;
-    padding: 20px;
-    font-size: 1em;
+  .game-layout .game-content .game-board-container .game-info {
+    font-size: 1.2rem;
   }
-  .modal.show .modal-content h1, .modal.show .modal-content h2 {
-    font-size: 1.5em;
-  }
-  .modal.show .modal-content .pushable .front {
-    padding: 10px 20px;
-    font-size: 1em !important;
-  }
-}
-@media (min-width: 577px) and (max-width: 768px) {
-  .menu-container .game-title {
-    font-size: 4rem;
-  }
-  .menu-container .community-info {
+  .game-layout .game-content .game-board-container .gameboard-wrapper {
+    width: 520px;
+    height: 520px;
     padding: 20px;
   }
-  .menu-container .community-info h3 {
-    font-size: 1.3em;
-  }
-  .menu-container .menu-buttons {
-    width: 90%;
-    gap: 20px;
-  }
-  .menu-container .menu-buttons .pushable .front {
-    padding: 12px 30px;
-    font-size: 1.5rem !important;
+  .game-layout .game-content .game-board-container .gameboard-wrapper #game-board {
+    width: 480px;
+    height: 480px;
+    position: relative;
   }
   #level-builder .builder-layout {
     grid-template-columns: 1fr;
-    gap: 25px;
   }
-  #level-builder .builder-options {
+  #level-builder .builder-layout .builder-options {
     order: 2;
   }
-  #level-builder .grid-section {
+  #level-builder .builder-layout .grid-section {
     order: 1;
   }
   #level-builder #grid-wrapper {
-    transform: scale(0.9);
+    transform: scale(0.7);
+    transform-origin: center;
   }
-  .game-layout .game-content {
-    flex-direction: column;
+  #level-builder #grid-container {
+    grid-template-columns: repeat(6, 70px);
+    grid-template-rows: repeat(6, 70px);
+    gap: 10px;
   }
-  .game-layout .game-content #hud {
-    width: 100%;
-    font-size: 2em;
+  #level-builder #grid-container .grid-cell {
+    width: 70px;
+    height: 70px;
   }
-  .game-layout .game-content #hud .game-btns .pushable .front {
-    font-size: 1.2rem !important;
+  #level-builder .palette-grid {
+    grid-template-columns: repeat(6, 1fr);
   }
-  .game-layout .game-content .game-board-container {
-    transform: scale(0.85);
-  }
-}
-@media (min-width: 769px) and (max-width: 992px) {
-  .sound-toggle {
-    top: 3%;
-    right: 5%;
-    transform: scale(2);
-    opacity: 1;
-  }
-  .menu-container {
-    height: 100vh;
-    margin-top: 0;
-  }
-  .menu-container .game-title {
-    font-size: 6rem;
-  }
-  .menu-container .community-info {
-    max-width: 600px;
-    padding: 25px;
-  }
-  .menu-container .community-info h3 {
-    font-size: 1.8em;
-  }
-  .menu-container .community-info p {
-    font-size: 1em;
-  }
-  .menu-container .menu-buttons {
-    width: 80%;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    margin-top: 30px;
-  }
-  .menu-container .menu-buttons .pushable span {
-    border-radius: 30px;
-  }
-  .menu-container .menu-buttons .pushable .front {
-    padding: 16px 32px;
-    font-size: 2.5rem !important;
-  }
-  .menu-container .current-level-info {
-    max-width: 500px;
-    margin-top: 30px;
-  }
-  .modal.show .modal-content {
-    margin: auto 10vw !important;
-    width: 80%;
-    font-size: 1.5em;
-  }
-  .modal.show .modal-content .pushable span {
-    border-radius: 30px;
-  }
-  .modal.show .modal-content .pushable .front {
-    padding: 16px 32px;
-    font-size: 1.5em !important;
-  }
-  #time-up-modal .modal-content {
-    font-size: 2em;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
-    min-height: 60%;
-  }
-  #time-up-modal .modal-content h2 {
-    font-size: 2em;
-  }
-  #time-up-modal .modal-content .name-input-container {
-    width: 100%;
-  }
-  #time-up-modal .modal-content .name-input-container input {
-    width: 80%;
-    font-size: 0.8em;
-    text-align: center;
-  }
-  #time-up-modal .modal-content .modal-buttons {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    justify-content: center;
-    gap: 20px;
-  }
-  #time-up-modal .modal-content .modal-buttons .pushable {
-    margin: 0;
-  }
-  #time-up-modal .modal-content .modal-buttons .pushable span {
-    border-radius: 20px;
-  }
-  #time-up-modal .modal-content .modal-buttons .pushable .front {
-    padding: 12px 24px;
-    font-size: 0.8em !important;
-  }
-  .game-layout {
-    display: none;
-  }
-  .game-layout .game-content {
-    margin-top: 5vh;
-    display: flex;
-    flex-direction: row;
-  }
-  .game-layout .game-content #hud {
-    width: 45%;
-    font-size: 2em;
-  }
-  .game-layout .game-content #hud #game-controls .level-info-text {
-    font-size: 1em;
-  }
-  .game-layout .game-content #hud #game-controls .level-info-text .level-title-wrapper small {
-    font-size: 0.5em;
-  }
-  .game-layout .game-content #hud #game-controls .game-btns {
-    display: flex;
-    flex-direction: row;
-  }
-  .game-layout .game-content #hud #game-controls .game-btns .pushable span {
-    border-radius: 20px;
-  }
-  .game-layout .game-content #hud #game-controls .game-btns .pushable .front {
-    padding: 12px 24px;
-    font-size: 1.5rem !important;
-  }
-  .game-layout .game-content .game-board-container {
-    margin: 2vh;
-    transform: scale(1.1);
-  }
-  .game-layout .game-content .game-board-container .gameboard-wrapper #game-board {
-    height: 100% !important;
-    width: 100% !important;
-  }
-  #level-builder {
-    display: none;
-  }
-  #level-builder .builder-header {
-    margin-bottom: 20px;
-  }
-  #level-builder .builder-header h1 {
-    font-size: 2em;
-  }
-  #level-builder .builder-layout {
-    grid-template-columns: 300px 1fr;
-    gap: 20px;
-  }
-  #level-builder .builder-options {
-    padding: 15px;
-  }
-  #level-builder .builder-options .level-settings h3 {
-    font-size: 1em;
-  }
-  #level-builder .builder-options .level-settings label {
-    font-size: 0.85em;
-  }
-  #level-builder .builder-options .tile-palette h3 {
-    font-size: 1em;
-  }
-  #level-builder .builder-options .tile-palette h4 {
-    font-size: 0.9em;
-  }
-  #level-builder .builder-options .palette-grid {
-    gap: 8px;
-  }
-  #level-builder .builder-options .tile-btn {
+  #level-builder .palette-grid .tile-btn {
     width: 55px;
     height: 55px;
   }
-  #level-builder .builder-options .builder-actions .pushable .front {
-    font-size: 1em;
+}
+@media (min-width: 769px) and (max-width: 992px) {
+  .menu-container {
+    margin-top: 10vh;
+  }
+  .menu-container .game-title {
+    font-size: 5rem;
+  }
+  .menu-container .menu-buttons {
+    width: 50%;
+    max-width: 450px;
+  }
+  .menu-container .menu-buttons .pushable .front {
+    padding: 14px 28px;
+    font-size: 1.4rem !important;
+  }
+  .game-layout .game-content {
+    flex-direction: row;
+    margin-top: 2vh;
+    align-items: flex-start;
+    padding: 20px;
+  }
+  .game-layout .game-content #hud {
+    width: 40%;
+    font-size: 1.8rem;
+  }
+  .game-layout .game-content #hud .game-heading {
+    font-size: 2.5rem;
+  }
+  .game-layout .game-content #hud .game-btns .pushable .front {
+    font-size: 1.1rem !important;
     padding: 10px 20px;
   }
-  #level-builder .builder-options .validation-status {
-    padding: 15px;
+  .game-layout .game-content .game-board-container {
+    margin: 0 0 0 5%;
+    transform: scale(0.85);
+    transform-origin: center center;
   }
-  #level-builder .builder-options .validation-status h4 {
-    font-size: 0.95em;
+  .game-layout .game-content .game-board-container .game-info {
+    font-size: 1.2rem;
   }
-  #level-builder .builder-options .validation-status .status-message {
-    font-size: 0.85em;
-    padding: 8px;
+  .game-layout .game-content .game-board-container .gameboard-wrapper {
+    width: 520px;
+    height: 520px;
+    padding: 20px;
   }
-  #level-builder .builder-options .validation-status .validation-checklist li {
-    font-size: 0.85em;
-    padding: 6px 0;
+  .game-layout .game-content .game-board-container .gameboard-wrapper #game-board {
+    width: 480px;
+    height: 480px;
+    position: relative;
+  }
+  #level-builder .builder-layout {
+    grid-template-columns: 350px 1fr;
+    gap: 25px;
   }
   #level-builder #grid-wrapper {
-    padding: 30px;
-    transform: scale(1);
+    transform: scale(0.8);
+    transform-origin: center;
   }
   #level-builder #grid-container {
-    gap: 8px;
+    grid-template-columns: repeat(6, 70px);
+    grid-template-rows: repeat(6, 70px);
+    gap: 10px;
   }
   #level-builder #grid-container .grid-cell {
-    width: 65px;
-    height: 65px;
+    width: 70px;
+    height: 70px;
   }
-  #level-builder .test-controls {
-    max-width: 350px;
-    padding: 15px;
+  #level-builder .palette-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
-  #level-builder .test-controls h3 {
-    font-size: 1.2em;
-  }
-  #level-builder .test-controls .test-info {
-    font-size: 1em;
-  }
-  #level-builder .test-controls .test-info span {
-    padding: 8px 12px;
-  }
-  #level-builder .test-controls .pushable .front {
-    font-size: 1em;
-    padding: 10px 20px;
+  #level-builder .palette-grid .tile-btn {
+    width: 60px;
+    height: 60px;
   }
 }
-@media (min-width: 993px) {
+@media (min-width: 993px) and (max-width: 1200px) {
+  .menu-container {
+    margin-top: 10vh;
+  }
+  .menu-container .game-title {
+    font-size: 7rem;
+  }
+  .menu-container .menu-buttons {
+    width: 35%;
+  }
+  .menu-container .menu-buttons .pushable .front {
+    padding: 16px 32px;
+    font-size: 1.5rem !important;
+  }
+  .game-layout .game-content {
+    padding: 30px;
+  }
+  .game-layout .game-content #hud {
+    width: 35%;
+    font-size: 2rem;
+  }
+  .game-layout .game-content #hud .game-heading {
+    font-size: 3rem;
+  }
+  .game-layout .game-content .game-board-container {
+    margin-left: 8%;
+    transform: scale(0.95);
+    transform-origin: center center;
+  }
+  .game-layout .game-content .game-board-container .gameboard-wrapper {
+    width: 520px;
+    height: 520px;
+    padding: 20px;
+  }
+  .game-layout .game-content .game-board-container .gameboard-wrapper #game-board {
+    width: 480px;
+    height: 480px;
+    position: relative;
+  }
+  #level-builder .builder-layout {
+    grid-template-columns: 400px 1fr;
+    max-width: 1200px;
+  }
+  #level-builder #grid-wrapper {
+    transform: scale(0.9);
+    transform-origin: center;
+  }
+  #level-builder #grid-container {
+    grid-template-columns: repeat(6, 70px);
+    grid-template-rows: repeat(6, 70px);
+    gap: 10px;
+  }
+  #level-builder #grid-container .grid-cell {
+    width: 70px;
+    height: 70px;
+  }
+}
+@media (min-width: 1201px) {
+  .menu-container {
+    margin-top: 10vh;
+  }
+  .menu-container .game-title {
+    font-size: 10rem;
+  }
+  .menu-container .menu-buttons {
+    width: 25%;
+    max-width: 500px;
+  }
+  .game-layout .game-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+  .game-layout .game-content #hud {
+    width: 35%;
+    max-width: 500px;
+    font-size: 2.5rem;
+  }
+  .game-layout .game-content #hud .game-heading {
+    font-size: 3em;
+  }
+  .game-layout .game-content .game-board-container {
+    margin-left: 10%;
+    transform: scale(1);
+    transform-origin: center center;
+  }
+  .game-layout .game-content .game-board-container .gameboard-wrapper {
+    width: 520px;
+    height: 520px;
+  }
+  .game-layout .game-content .game-board-container .gameboard-wrapper #game-board {
+    width: 480px;
+    height: 480px;
+    position: relative;
+  }
   #level-builder .builder-layout {
     max-width: 1400px;
+    grid-template-columns: minmax(400px, 450px) 1fr;
+  }
+  #level-builder #grid-wrapper {
+    transform: scale(1);
+    transform-origin: center;
   }
   #level-builder .builder-options {
     position: sticky;
@@ -359,22 +483,213 @@
     max-height: calc(100vh - 40px);
     overflow-y: auto;
   }
+}
+@media (min-width: 1400px) {
+  .menu-container .game-title {
+    font-size: 12rem;
+  }
+  .game-layout .game-content {
+    max-width: 1600px;
+  }
   .game-layout .game-content .game-board-container {
-    transform: scale(1.2);
-    margin-left: 15vw;
+    transform: scale(1.1);
   }
 }
-@media (max-width: 400px) {
+@media (max-height: 500px) and (orientation: landscape) {
+  .menu-container {
+    margin-top: 2vh;
+  }
   .menu-container .game-title {
     font-size: 2rem;
+    margin-bottom: 10px;
   }
-  .menu-container .game-title span:nth-child(5) {
+  .menu-container .current-level-info {
     display: none;
   }
-  #level-builder #grid-wrapper {
-    transform: scale(0.65);
+  .menu-container .menu-buttons {
+    gap: 8px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: auto;
   }
-  .game-layout .game-board-container {
-    transform: scale(0.6);
+  .menu-container .menu-buttons .pushable {
+    width: auto;
+  }
+  .menu-container .menu-buttons .pushable .front {
+    padding: 6px 12px;
+    font-size: 0.8rem !important;
+  }
+  .game-layout .game-content {
+    flex-direction: row;
+  }
+  .game-layout .game-content #hud {
+    width: 35%;
+    font-size: 1rem;
+    padding: 10px;
+  }
+  .game-layout .game-content #hud .game-heading {
+    font-size: 1.3rem;
+  }
+  .game-layout .game-content #hud .level-title-wrapper {
+    min-height: 30px;
+  }
+  .game-layout .game-content #hud .game-btns {
+    gap: 5px;
+  }
+  .game-layout .game-content #hud .game-btns .pushable .front {
+    padding: 5px 10px;
+    font-size: 0.7rem !important;
+  }
+  .game-layout .game-content .game-board-container {
+    margin: 0 0 0 3%;
+    transform: scale(0.5);
+    transform-origin: center center;
+  }
+  .game-layout .game-content .game-board-container .game-info {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+  .game-layout .game-content .game-board-container .gameboard-wrapper {
+    width: 520px;
+    height: 520px;
+    padding: 20px;
+  }
+  .game-layout .game-content .game-board-container .gameboard-wrapper #game-board {
+    width: 480px;
+    height: 480px;
+    position: relative;
+  }
+  #level-builder .builder-header {
+    padding: 5px 10px;
+    margin-bottom: 10px;
+  }
+  #level-builder .builder-header h1 {
+    font-size: 1.2rem;
+  }
+  #level-builder .builder-header .builder-header-buttons .pushable .front {
+    padding: 4px 8px;
+    font-size: 0.7rem !important;
+  }
+  #level-builder .builder-layout {
+    grid-template-columns: 250px 1fr;
+    gap: 15px;
+  }
+  #level-builder #grid-wrapper {
+    padding: 10px;
+    transform: scale(0.45);
+    transform-origin: center;
+  }
+  #level-builder #grid-wrapper #grid-container {
+    grid-template-columns: repeat(6, 70px);
+    grid-template-rows: repeat(6, 70px);
+    gap: 10px;
+  }
+  #level-builder #grid-wrapper #grid-container .grid-cell {
+    width: 70px;
+    height: 70px;
+  }
+}
+.modal.show .modal-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+@media (min-width: 576px) {
+  .modal.show .modal-content {
+    max-width: 500px;
+  }
+}
+@media (min-width: 768px) {
+  .modal.show .modal-content {
+    max-width: 600px;
+  }
+}
+@media (min-width: 992px) {
+  .modal.show .modal-content {
+    max-width: 700px;
+  }
+}
+@media (max-width: 576px) {
+  .modal.show .modal-content h1, .modal.show .modal-content h2 {
+    font-size: 1.3rem;
+  }
+}
+@media (max-width: 576px) {
+  .modal.show .modal-content .instructions ul li {
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+  }
+}
+@media (max-width: 576px) {
+  .modal.show .modal-content .pushable .front {
+    padding: 8px 16px;
+    font-size: 0.9rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  #menu-sound-toggle {
+    top: 15px;
+    right: 15px;
+    transform: scale(1);
+  }
+  #menu-sound-toggle .front {
+    padding: 8px;
+  }
+  #menu-sound-toggle .front i {
+    font-size: 0.9rem;
+  }
+}
+@media (min-width: 577px) and (max-width: 768px) {
+  #menu-sound-toggle {
+    top: 20px;
+    right: 20px;
+    transform: scale(1.2);
+  }
+}
+@media (min-width: 769px) {
+  #menu-sound-toggle {
+    top: 30px;
+    right: 25px;
+    transform: scale(1.4);
+  }
+}
+
+@media (max-width: 576px) {
+  .info-badge {
+    font-size: 0.8em;
+    padding: 10px;
+    max-width: 90vw;
+  }
+}
+
+@media (max-width: 768px) {
+  #level-builder .builder-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  #level-builder .grid-section {
+    order: 1;
+    width: 100%;
+  }
+  #level-builder .grid-section #grid-wrapper {
+    margin: 0 auto;
+  }
+  #level-builder .builder-options {
+    order: 2;
+  }
+  #level-builder .builder-options .palette-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  #level-builder .builder-options .tile-btn {
+    width: 60px;
+    height: 60px;
+  }
+  #level-builder .builder-options .tile-btn.drill::after {
+    width: 80% !important;
+    height: 70% !important;
   }
 }/*# sourceMappingURL=responsive.css.map */

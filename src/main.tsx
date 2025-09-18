@@ -21,6 +21,12 @@ Devvit.addCustomPostType({
       return (await context.postId) ?? "anon";
     });
 
+    // Load level data to get creator name
+    const [levelData] = useState(async () => {
+      const customLevel = await context.redis.get(postID);
+      return customLevel ? JSON.parse(customLevel) : null;
+    });
+
     // Only custom level leaderboard now
     const [customLevelLeaderboardScores, setCustomLevelLeaderboardScores] = useState(async () => {
       const leaderboard = await context.redis.get(`${postID}_customLevelLeaderboard`);
@@ -148,25 +154,44 @@ Devvit.addCustomPostType({
       },
     });
 
+    // Get level info for display
+    const levelTitle = levelData?.levelData?.level_title || "Community Puzzle";
+    const creatorName = levelData?.builtBy || "Anonymous";
+    const hasLevel = levelData !== null;
+
     // Render the custom post type
     return (
       <vstack grow gap="medium" alignment="middle center" backgroundColor="#f0f0f0">
-        <image url="tile-slide-banner.png" width="100%" imageWidth={250} imageHeight={250} description="banner" />
+        <image url="tile-slide-banner.png" width="100%" imageWidth={250} imageHeight={200} description="banner" />
+        
         <text size="xxlarge" weight="bold">
           Welcome {username ?? ""}!
         </text>
+        
+        {hasLevel && (
+          <vstack alignment="start middle" gap="small" padding="medium" backgroundColor="white" cornerRadius="medium">
+            <text size="large" weight="bold" color="#2c3e50">
+              🎮 {levelTitle}
+            </text>
+            <text size="medium" color="#4caf50">
+              Created by: {creatorName}
+            </text>
+          </vstack>
+        )}
+        
         <vstack alignment="start middle">
-          <text size="large" weight="bold">
-            🎮 Community Puzzle Builder
-          </text>
+ 
           <text size="medium">
-            Create and share puzzles with Reddit!
+            {hasLevel ? "Play this level or create your own!" : "Create and share puzzles with Reddit!"}
           </text>
         </vstack>
+        
         <spacer />
+        
         <button appearance="primary" size="large" width="50%" onPress={() => webView.mount()}>
-          LAUNCH GAME!
+          {hasLevel ? "PLAY LEVEL!" : "CREATE LEVEL!"}
         </button>
+        
         <spacer />
       </vstack>
     );

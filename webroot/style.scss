@@ -1,4 +1,4 @@
-// style.scss - Updated with Fixed Drill Animation
+// style.scss - Updated with improved responsive base styles
 @font-face {
   font-family: "Bungee-local";
   src: url("resources/Bungee-Regular.ttf");
@@ -6,22 +6,25 @@
 
 * {
   font-family: "Bungee-local", Arial, sans-serif;
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  padding: 0px 20px;
+  padding: 0 20px;
   background: #f0f0f0;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
-// Original size game title with slot machine animation
+// Game title with responsive animation
 .game-title {
   text-align: center;
   margin-bottom: 10px;
-  font-size: 10em;
+  font-size: 10em; // Base size, overridden by responsive
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 
   span {
     display: inline-block;
@@ -48,15 +51,16 @@ body {
   }
 }
 
-// Current Level Info - Better positioning
+// Current Level Info
 .current-level-info {
   background: rgba(255, 255, 255, 0.9);
   padding: 15px;
   border-radius: 10px;
-  margin-top: 30px;
+  margin: 30px auto 0;
   border: 2px solid rgba(255, 215, 0, 0.3);
   text-align: center;
   max-width: 400px;
+  width: 90%;
 
   h4 {
     color: #333;
@@ -82,14 +86,16 @@ body {
   padding: 15px;
   border-radius: 20px;
   transform-origin: center;
-  position: absolute;
+  position: fixed;
   top: 2vh;
   left: 50%;
-  transform: translate(-50%, -10%);
-  z-index: 100;
+  transform: translate(-50%, 0);
+  z-index: 1000;
   opacity: 0;
   transition: all 0.3s ease;
   font-size: 1em;
+  max-width: 80vw;
+  text-align: center;
 }
 
 // Sound toggle
@@ -119,9 +125,6 @@ body {
     background: #14b8a6;
     transform: translateY(-6px);
   }
-  &:hover {
-    opacity: 1;
-  }
 }
 
 .pushable {
@@ -144,15 +147,15 @@ body {
 
 .menu-container { 
   transform-origin: center;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  margin-top: 10vh;
+  min-height: calc(100vh - 20vh);
+  padding: 20px;
 
   .menu-buttons {
     display: flex;
@@ -160,6 +163,12 @@ body {
     gap: 20px;
     margin-top: 30px;
     width: 25%;
+    min-width: 200px;
+    align-items: center;
+
+    .pushable {
+      width: 100%;
+    }
   }
 }
 
@@ -257,9 +266,11 @@ body {
   }
 }
 
-// Game layout
+// Game layout - improved responsive base
 .game-layout {
   display: none;
+  width: 100%;
+  min-height: 100vh;
 
   .game-heading {
     text-align: start;
@@ -269,15 +280,21 @@ body {
 
   .game-content {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+    width: 100%;
 
     .game-board-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       margin-left: 10vw;
     }
   }
 }
 
-// HUD with level title animation
+// HUD with responsive base
 #hud {
   margin-bottom: 15px;
   height: 100%;
@@ -310,6 +327,7 @@ body {
       position: relative;
       height: auto;
       min-height: 60px;
+      word-wrap: break-word;
 
       #level-title {
         color: #656565;
@@ -348,9 +366,12 @@ body {
       justify-content: space-between;
       width: 100%;
       margin-top: 20px;
+      gap: 10px;
     }
 
     .pushable {
+      flex: 1;
+      
       .front {
         padding: 8px 16px;
         font-size: 1.5rem;
@@ -358,11 +379,13 @@ body {
         align-items: center;
         justify-content: center;
         gap: 8px;
+        white-space: nowrap;
       }
     }
   }
 }
 
+// Game board wrapper - responsive base
 .gameboard-wrapper {
   padding: 20px;
   position: relative;
@@ -370,6 +393,7 @@ body {
   border-radius: 10px;
   width: 520px;
   height: 520px;
+  max-width: 100%;
   margin: 0 auto;
   display: flex !important;
   justify-content: center !important;
@@ -387,8 +411,8 @@ body {
 
   #game-board {
     position: relative;
-    width: 480px;
-    height: 480px;
+    width: 100%;
+    height: 100%;
     padding: 10px;
     overflow: hidden;
     border-radius: 5px;
@@ -398,7 +422,6 @@ body {
 .reset-icon {
   display: inline-block;
   transform-origin: center;
-  margin-left: 10px;
   transition: transform 0.7s ease;
 }
 
@@ -406,7 +429,7 @@ body {
   transform: rotate(540deg);
 }
 
-// Base Tile Styles - simple animation
+// Base Tile Styles
 .tile {
   width: 70px;
   height: 70px;
@@ -544,6 +567,7 @@ body {
   }
 }
 
+// Arrow image definitions
 .arrow_up::after {
   background-image: url("resources/images/up-arrow.png");
 }
@@ -593,7 +617,7 @@ body {
   border: #52a9ff 1px dashed;
 }
 
-// FIXED: Cracked tile with simple wobble animation
+// Cracked tile with wobble animation
 .cracked {
   background-image: url("resources/images/cracked.png");
   background-position: center;
@@ -603,12 +627,12 @@ body {
   padding: 0;
 }
 
-// FIXED: Drill tile styling with drilling down animation
+// Drill tile styling
 .drill {
   background-color: #dbe4e9;
   color: white;
   position: relative;
-  overflow: hidden; // Important to contain the animation within the tile
+  overflow: hidden;
 
   &::after {
     content: "";
@@ -630,12 +654,10 @@ body {
   }
 
   &.drilling {
-    // Create a "drilling down" effect
     &::after {
       animation: drillDown 1s ease-in-out forwards;
     }
     
-    // Add a dark hole effect behind the drill
     &::before {
       content: "";
       position: absolute;
@@ -652,7 +674,7 @@ body {
   }
 }
 
-// Drilling down animation - drill moves down and shrinks
+// Drilling animations
 @keyframes drillDown {
   0% {
     transform: translateY(0%) scale(1);
@@ -668,7 +690,6 @@ body {
   }
 }
 
-// Hole appears as drill goes down
 @keyframes holeAppear {
   0% {
     transform: translate(-50%, -50%) scale(0);
@@ -684,7 +705,7 @@ body {
   }
 }
 
-// Wobble animation for breaking tiles
+// Breaking animation for cracked tiles
 .tile.cracked.breaking {
   animation: wobbleOnly 0.6s ease-in forwards;
 }
@@ -733,7 +754,7 @@ body {
   }
 }
 
-// Modals
+// Modals with responsive base
 .modal {
   display: none;
   position: fixed;
@@ -743,10 +764,13 @@ body {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
+  padding: 20px;
 
   &.show {
     display: flex !important;
     animation: fadeIn 0.3s ease forwards;
+    justify-content: center;
+    align-items: center;
 
     .modal-content {
       width: auto;
@@ -759,6 +783,9 @@ body {
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
       transform: scale(0.7);
       opacity: 0;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
     }
   }
 }
@@ -878,6 +905,7 @@ body {
   }
 }
 
+// Button color variants
 .blue-btn {
   .front {
     background: hsl(200, 100%, 47%) !important;
@@ -962,6 +990,7 @@ body {
   margin-bottom: 20px;
   font-size: 1.5rem;
   font-weight: bold;
+  width: 100%;
 }
 
 #timer {
@@ -1045,6 +1074,8 @@ body {
   background: rgba(255, 255, 255, 0.9);
   box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
   transition: all ease 0.3s;
+  max-width: 100%;
+  box-sizing: border-box;
 
   &:focus {
     outline: none;
@@ -1091,12 +1122,13 @@ body {
   }
 }
 
-// BUILDER SECTION - More responsive layout
+// BUILDER SECTION
 #level-builder {
   display: none;
   padding: 20px;
   background: #f0f0f0;
   min-height: 100vh;
+  width: 100%;
 }
 
 .builder-header {
@@ -1108,6 +1140,8 @@ body {
   background: white;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  gap: 15px;
 
   h1 {
     margin: 0;
@@ -1118,12 +1152,13 @@ body {
   .builder-header-buttons {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
   }
 }
 
 .builder-layout {
   display: grid;
-  grid-template-columns: minmax(400px, 1fr) 2fr;
+  grid-template-columns: minmax(350px, 1fr) 2fr;
   gap: 30px;
   max-width: 1400px;
   margin: 0 auto;
@@ -1137,8 +1172,6 @@ body {
   height: fit-content;
   transition: all 0.3s ease;
   overflow: visible;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
 
   &[style*="opacity: 0.5"] {
     pointer-events: none;
@@ -1407,6 +1440,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  width: 100%;
 }
 
 #grid-wrapper {
@@ -1414,6 +1448,7 @@ body {
   padding: 40px;
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: inline-block;
 }
 
 #grid-container {
@@ -1587,6 +1622,7 @@ body {
   margin-bottom: 20px;
   font-size: 1.1em;
   font-weight: bold;
+  gap: 10px;
 
   span {
     padding: 10px 15px;
